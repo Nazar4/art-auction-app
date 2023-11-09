@@ -1,17 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserModule } from './user/user.module';
 import { AddressModule } from './address/address.module';
-import { RoleModule } from './role/role.module';
-import { ProductModule } from './product/product.module';
-import { ReviewModule } from './review/review.module';
-import { ManufacturerModule } from './manufacturer/manufacturer.module';
-import { RequestModule } from './request/request.module';
 import { AuctionLotModule } from './auction-lot/auction-lot.module';
 import { AuctionModule } from './auction/auction.module';
+import { ManufacturerModule } from './manufacturer/manufacturer.module';
+import { ProductModule } from './product/product.module';
+import { RequestModule } from './request/request.module';
+import { ReviewModule } from './review/review.module';
+import { RoleModule } from './role/role.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -42,7 +40,7 @@ import { AuctionModule } from './auction/auction.module';
     AuctionLotModule,
     AuctionModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
