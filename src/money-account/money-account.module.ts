@@ -1,4 +1,12 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { MoneyAccount } from './entities/money-account.entity';
+import { MoneyAccountController } from './controllers/money-account.controller';
+import { MoneyAccountService } from './services/money-account.service';
 
-@Module({})
+@Module({
+  imports: [TypeOrmModule.forFeature([MoneyAccount])],
+  controllers: [MoneyAccountController],
+  providers: [MoneyAccountService],
+})
 export class MoneyAccountModule {}
