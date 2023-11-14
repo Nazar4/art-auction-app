@@ -15,7 +15,7 @@ export class Manufacturer {
   id: number;
 
   @Column({
-    name: 'average-rating',
+    name: 'average_rating',
     type: 'decimal',
     precision: 2,
     scale: 1,
@@ -23,7 +23,7 @@ export class Manufacturer {
   })
   averageRating: number;
 
-  @Column({ nullable: true, type: 'int' })
+  @Column({ name: 'products-sold', nullable: true, type: 'int' })
   productsSold: number;
 
   //   @Column({ name: 'active_until', type: 'datetime' })

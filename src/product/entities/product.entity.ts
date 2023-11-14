@@ -27,7 +27,7 @@ export class Product {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
-  @Column({ name: 'percentage-fee', type: 'decimal', precision: 10, scale: 2 })
+  @Column({ name: 'percentage_fee', type: 'decimal', precision: 10, scale: 2 })
   percentageFee: number;
 
   @Column({ name: 'photo_file_path' })

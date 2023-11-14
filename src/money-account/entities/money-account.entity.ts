@@ -8,7 +8,13 @@ export class MoneyAccount {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   balance: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column({
+    name: 'balance_in_use',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
   balanceInUse: number;
 
   @Column()
