@@ -14,6 +14,10 @@ import { MoneyAccount } from 'src/money-account/entities/money-account.entity';
 @Entity({ name: 'user' })
 @Unique(['address', 'moneyAccount'])
 export class User {
+  constructor(partial?: Partial<User>) {
+    Object.assign(this, partial);
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 

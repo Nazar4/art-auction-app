@@ -11,16 +11,10 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(AuthGuardLocal)
-  async login(@CurrentUser() user: User) {
+  public async login(@CurrentUser() user: User) {
     return {
       userId: user.id,
       token: this.authService.getTokenForUser(user),
     };
-  }
-
-  @Get('profile-info')
-  @UseGuards(AuthGuardJwt)
-  async getProfile(@CurrentUser() user: User) {
-    return user;
   }
 }
