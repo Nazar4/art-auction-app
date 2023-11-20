@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../entities/user.entity';
-import { Repository } from 'typeorm';
-import { UserRepository } from '../user.repository';
-import { CreateUserDto } from '../dtos/create-user.dto';
 import { AuthService } from 'src/auth/services/auth.service';
 import { RoleService } from 'src/role/services/role.service';
+import { CreateUserDto } from '../dtos/create-user.dto';
+import { User } from '../entities/user.entity';
+import { UserRepository } from '../user.repository';
+import { Role } from 'src/type-utils/global.types';
 
 @Injectable()
 export class UserService {
@@ -19,11 +18,14 @@ export class UserService {
     return await this.userRepository.find();
   }
 
-  public async create(createUserDto: CreateUserDto): Promise<User> {
+  public async createUser(
+    createUserDto: CreateUserDto,
+    role: Role,
+  ): Promise<User> {
     const user = new User({
       ...createUserDto,
       password: await this.authService.hashPassword(createUserDto.password),
-      role: await this.roleService.getUserRole(),
+      role: await this.roleService.getRoleByName(role),
     });
 
     // await this.roleService.assignUserRole(user);

@@ -16,6 +16,6 @@ import { UserDoesNotExistConstraint } from './decorators/validation/user-does-no
   ],
   controllers: [UserController],
   providers: [UserDoesNotExistConstraint, UserService, UserRepository],
-  exports: [UserRepository],
+  exports: [UserRepository, UserService],
 })
 export class UserModule {}

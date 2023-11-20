@@ -11,6 +11,10 @@ import {
 @Entity({ name: 'manufacturer' })
 @Unique(['user'])
 export class Manufacturer {
+  constructor(partial?: Partial<Manufacturer>) {
+    Object.assign(this, partial);
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,7 +27,7 @@ export class Manufacturer {
   })
   averageRating: number;
 
-  @Column({ name: 'products-sold', nullable: true, type: 'int' })
+  @Column({ name: 'products-sold', nullable: true, type: 'int', default: 0 })
   productsSold: number;
 
   //   @Column({ name: 'active_until', type: 'datetime' })

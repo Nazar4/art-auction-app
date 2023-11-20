@@ -5,8 +5,8 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { UserDoesNotExist } from '../decorators/validation/user-does-not-exist.constraint';
 import { IsRepeated } from '../decorators/validation/is-repeated.constraint';
+import { UserDoesNotExist } from '../decorators/validation/user-does-not-exist.constraint';
 
 export class CreateUserDto {
   @IsString()

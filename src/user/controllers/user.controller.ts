@@ -14,7 +14,7 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { User } from '../entities/user.entity';
 import { UserService } from '../services/user.service';
 
-@Controller('/users')
+@Controller('users')
 export class UserController {
   private readonly logger = new Logger(UserController.name);
 
@@ -34,7 +34,7 @@ export class UserController {
   public async registerUser(
     @Body() createUserDto: CreateUserDto,
   ): Promise<any> {
-    const user = await this.userService.create(createUserDto);
+    const user = await this.userService.createUser(createUserDto, 'user');
 
     return {
       status: 'success',
