@@ -10,6 +10,10 @@ import {
 
 @Entity({ name: 'review' })
 export class Review {
+  constructor(partial?: Partial<Review>) {
+    Object.assign(this, partial);
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 

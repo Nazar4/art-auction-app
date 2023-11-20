@@ -11,21 +11,17 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AuthService } from 'src/auth/services/auth.service';
-import { ManufacturerService } from '../services/manufacturer.service';
-import { CreateUserDto } from 'src/user/dtos/create-user.dto';
-import { SortType } from 'src/type-utils/global.types';
-import { Manufacturer } from '../entities/manufacturer.entity';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
+import { SortType } from 'src/type-utils/global.types';
+import { CreateUserDto } from 'src/user/dtos/create-user.dto';
+import { Manufacturer } from '../entities/manufacturer.entity';
+import { ManufacturerService } from '../services/manufacturer.service';
 
 @Controller('manufacturers')
 export class ManufacturerController {
   private readonly logger = new Logger(ManufacturerController.name);
 
-  constructor(
-    private readonly authService: AuthService,
-    private readonly manufacturerService: ManufacturerService,
-  ) {}
+  constructor(private readonly manufacturerService: ManufacturerService) {}
 
   // @Get()
   // @UseGuards(AuthGuardJwt)
