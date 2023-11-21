@@ -9,6 +9,10 @@ import {
 
 @Entity({ name: 'product' })
 export class Product {
+  constructor(partial?: Partial<Product>) {
+    Object.assign(this, partial);
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 
