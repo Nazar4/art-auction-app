@@ -44,7 +44,9 @@ export class ManufacturerService {
       .getMany();
   }
 
-  public async getManufacturerByUserId(id: number): Promise<Manufacturer> {
+  public async getManufacturerByUserId(
+    id: number,
+  ): Promise<Manufacturer | undefined> {
     return await this.getManufacturerBaseQuery()
       .innerJoinAndSelect('man.user', 'user')
       .where('man.user_id = :id', { id })

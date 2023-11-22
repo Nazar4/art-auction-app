@@ -6,10 +6,14 @@ import { Constants } from 'src/type-utils/global.constants';
 import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
 import { groupBy } from 'rxjs';
 import { SortType } from 'src/type-utils/global.types';
+import { User } from 'src/user/entities/user.entity';
+import { ManufacturerService } from 'src/manufacturer/services/manufacturer.service';
+import { NotFoundException } from '@nestjs/common';
 export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+    private readonly manufacturerService: ManufacturerService,
   ) {}
 
   private getProductBaseQuery(): SelectQueryBuilder<Product> {
@@ -46,9 +50,19 @@ export class ProductService {
 
   public async createProduct(
     createProductDTO: CreateProductDTO,
-    manufacturer: Manufacturer,
+    pictureBuffer: Buffer,
+    { id }: User,
   ): Promise<number> {
-    const product = new Product({ ...createProductDTO, creator: manufacturer });
+    const manufacturer =
+      await this.manufacturerService.getManufacturerByUserId(id);
+    if (!manufacturer) {
+      throw new NotFoundException(`Manufacturer with id ${id} was not found`);
+    }
+    const product = new Product({
+      ...createProductDTO,
+      creator: manufacturer,
+      photoFilePath: pictureBuffer,
+    });
     product.percentageFee = this.calculatePercentageFeeForProductPrice(
       product.price,
     );
@@ -56,12 +70,27 @@ export class ProductService {
     return product.percentageFee;
   }
 
+  public async uploadProductPictureByProductId(
+    id: number,
+    fileBuffer: Buffer,
+  ): Promise<void> {
+    const product = await this.productRepository.findOneByOrFail({ id });
+    product.photoFilePath = fileBuffer;
+    await this.productRepository.save(product);
+  }
+
   private calculatePercentageFeeForProductPrice(productPrice: number): number {
-    let fee = productPrice * 0.01;
-    return fee < Constants.UPPER_LEVEL && fee > Constants.BOTTOM_LEVEL
-      ? fee
-      : fee > Constants.UPPER_LEVEL
-      ? 10000
-      : Constants.BOTTOM_LEVEL;
+    const percentageFee = productPrice * 0.01;
+
+    const isBelowLowerBound = percentageFee < Constants.LOWER_BOUND;
+    const isAboveUpperBound = percentageFee > Constants.UPPER_BOUND;
+
+    if (isBelowLowerBound) {
+      return percentageFee;
+    } else if (isAboveUpperBound) {
+      return 10000;
+    } else {
+      return Constants.LOWER_BOUND;
+    }
   }
 }

@@ -13,6 +13,7 @@ import { AuthService } from 'src/auth/services/auth.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { User } from '../entities/user.entity';
 import { UserService } from '../services/user.service';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 
 @Controller('users')
 export class UserController {
@@ -25,7 +26,8 @@ export class UserController {
 
   @Get()
   @UseGuards(AuthGuardJwt)
-  public async getAll(): Promise<User[]> {
+  public async getAll(@CurrentUser() user: User): Promise<User[]> {
+    console.dir(user);
     return await this.userService.getAll();
   }
 

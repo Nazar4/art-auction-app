@@ -34,8 +34,8 @@ export class Product {
   @Column({ name: 'percentage_fee', type: 'decimal', precision: 10, scale: 2 })
   percentageFee: number;
 
-  @Column({ name: 'photo_file_path' })
-  photoFilePath: string;
+  @Column({ type: 'blob', name: 'photo_file_path', nullable: true })
+  photoFilePath: Buffer;
 
   @Column({ type: 'text', nullable: true })
   description: string;

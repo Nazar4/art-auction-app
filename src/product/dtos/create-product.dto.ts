@@ -34,6 +34,4 @@ export class CreateProductDTO {
   @IsString()
   @IsOptional()
   public description?: string;
-
-  //   public photoFilePath!: string;
 }
