@@ -13,6 +13,8 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ProductService } from '../services/product.service';
 import { Product } from '../entities/product.entity';
@@ -48,6 +50,7 @@ export class ProductController {
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles('manufacturer')
   @UseInterceptors(FileInterceptor('picture'))
+  @UsePipes(new ValidationPipe())
   public async createOrUpdateProduct(
     @Body(new ParseJSONPipe()) createProductDTO: CreateProductDTO,
     @UploadedFile(

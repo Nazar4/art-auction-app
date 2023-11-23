@@ -56,7 +56,7 @@ export class ProductService {
     const manufacturer =
       await this.manufacturerService.getManufacturerByUserId(id);
     if (!manufacturer) {
-      throw new NotFoundException(`Manufacturer with id ${id} was not found`);
+      throw new NotFoundException(`Manufacturer with id: ${id} was not found`);
     }
     const product = new Product({
       ...createProductDTO,

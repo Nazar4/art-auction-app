@@ -22,7 +22,10 @@ export class MoneyAccountService {
   public async getMoneyAccountByName(
     name: string,
   ): Promise<MoneyAccount | undefined> {
-    return await this.moneyAccountRepository.findOneBy({ name });
+    const moneyAccount = await this.moneyAccountRepository.findOneBy({ name });
+    console.log(name);
+    console.dir(moneyAccount);
+    return moneyAccount;
   }
 
   public async blockMoneyAccountById(

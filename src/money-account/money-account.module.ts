@@ -6,7 +6,7 @@ import { MoneyAccountService } from './services/money-account.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MoneyAccount])],
-  controllers: [MoneyAccountController],
   providers: [MoneyAccountService],
+  controllers: [MoneyAccountController],
 })
 export class MoneyAccountModule {}

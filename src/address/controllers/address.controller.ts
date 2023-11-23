@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { CreateAddressDTO } from '../dtos/create-address.dto';
 import { UpdateAddressDTO } from '../dtos/update-address.dto';
 import { Address } from '../entities/address.entity';
 import { AddressService } from '../services/address.service';
+import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 
 @Controller('addresses')
 export class AddressController {
@@ -25,6 +27,7 @@ export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
   @Get(':id')
+  @UseGuards(AuthGuardJwt)
   // @UsePipes(new ValidationPipe({transform: true}))
   // @UseInterceptors(ClassSerializerInterceptor)
   public async getAddressById(
@@ -36,6 +39,7 @@ export class AddressController {
 
   @Post()
   @UsePipes(new ValidationPipe())
+  @UseGuards(AuthGuardJwt)
   public async createAddress(
     @Body() address: CreateAddressDTO,
   ): Promise<Address> {
@@ -43,9 +47,9 @@ export class AddressController {
   }
 
   @Patch(':id')
-  // @UseGuards(AuthGuardJwt)
+  @UseGuards(AuthGuardJwt)
   public async udpateAddress(
-    @Param('id', ParseIntPipe) id,
+    @Param('id', ParseIntPipe) id: number,
     @Body() input: UpdateAddressDTO,
   ) {
     const address = await this.addressService.getAddressById(id);
@@ -63,7 +67,10 @@ export class AddressController {
 
   @Delete(':id')
   @HttpCode(204)
-  public async deleteAddress(@Param('id', ParseIntPipe) id): Promise<void> {
+  @UseGuards(AuthGuardJwt)
+  public async deleteAddress(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
     // if (address.organizerId !== user.id) {
     //     throw new ForbiddenException(`Not authorized to modify this event`);
     // }

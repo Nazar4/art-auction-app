@@ -1,15 +1,21 @@
 import {
   Controller,
+  Delete,
   Get,
   Logger,
   NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { MoneyAccountService } from '../services/money-account.service';
+import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { MoneyAccount } from '../entities/money-account.entity';
+import { MoneyAccountService } from '../services/money-account.service';
+import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('money-accounts')
 export class MoneyAccountController {
@@ -18,6 +24,7 @@ export class MoneyAccountController {
   constructor(private readonly moneyAccountService: MoneyAccountService) {}
 
   @Get(':id')
+  @UseGuards(AuthGuardJwt)
   // @UsePipes(new ValidationPipe({transform: true}))
   // @UseInterceptors(ClassSerializerInterceptor)
   public async getMoneyAccountById(
@@ -27,6 +34,7 @@ export class MoneyAccountController {
   }
 
   @Get()
+  @UseGuards(AuthGuardJwt)
   // @UsePipes(new ValidationPipe({transform: true}))
   // @UseInterceptors(ClassSerializerInterceptor)
   public async getMoneyAccountByName(
@@ -36,8 +44,9 @@ export class MoneyAccountController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuardJwt)
   public async updateMoneyAccountName(
-    @Param('id', ParseIntPipe) id,
+    @Param('id', ParseIntPipe) id: number,
     @Query('name') name: string,
   ): Promise<MoneyAccount> {
     // if (address.organizerId !== user.id) {
@@ -53,8 +62,12 @@ export class MoneyAccountController {
     }
   }
 
-  @Patch(':id')
-  public async blockMoneyAccount(@Param('id', ParseIntPipe) id): Promise<void> {
+  @Delete(':id')
+  @UseGuards(AuthGuardJwt, RolesGuard)
+  @Roles('admin')
+  public async blockMoneyAccount(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
     try {
       await this.moneyAccountService.blockMoneyAccountById(id);
     } catch (error) {
