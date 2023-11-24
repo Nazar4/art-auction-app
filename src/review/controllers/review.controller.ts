@@ -1,21 +1,13 @@
 import {
-  Body,
   Controller,
   Get,
   Logger,
   Param,
   ParseIntPipe,
-  Post,
   Query,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
-import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
-import { SortType } from 'src/type-utils/global.types';
-import { CreateUserDto } from 'src/user/dtos/create-user.dto';
-import { ReviewService } from '../services/review.service';
 import { Review } from '../entities/review.entity';
+import { ReviewService } from '../services/review.service';
 
 @Controller('reviews')
 export class ReviewController {

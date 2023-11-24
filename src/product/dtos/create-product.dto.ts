@@ -27,7 +27,8 @@ export class CreateProductDTO {
   @IsNotEmpty()
   public material!: string;
 
-  @IsDecimal({ decimal_digits: '2,10' }) // precision: 2, scale: 1
+  // @IsDecimal({ decimal_digits: '2,10' }) // precision: 2, scale: 1
+  @IsNumber()
   @Min(0.0)
   public price!: number;
 

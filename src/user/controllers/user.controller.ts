@@ -39,7 +39,6 @@ export class UserController {
     const user = await this.userService.createUser(createUserDto, 'user');
 
     return {
-      status: 'success',
       token: this.authService.getTokenForUser(user),
     };
   }

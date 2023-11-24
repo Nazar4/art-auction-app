@@ -11,6 +11,7 @@ import { ReviewModule } from './review/review.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { MoneyAccountModule } from './money-account/money-account.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AuthModule } from './auth/auth.module';
     ProductModule,
     ReviewModule,
     ManufacturerModule,
+    MoneyAccountModule,
     RequestModule,
     AuctionLotModule,
     AuctionModule,

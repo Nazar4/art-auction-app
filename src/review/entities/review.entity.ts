@@ -3,12 +3,16 @@ import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity({ name: 'review' })
+@Unique(['reviewer', 'manufacturer'])
+// @Index(['reviewer', 'manufacturer'], { unique: true })
 export class Review {
   constructor(partial?: Partial<Review>) {
     Object.assign(this, partial);

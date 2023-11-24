@@ -27,6 +27,7 @@ import { AuthGuardJwt } from '../../auth/guards/auth-guard.jwt';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Constants } from 'src/type-utils/global.constants';
 import { ParseJSONPipe } from './parse-json.pipe';
+import { FieldName } from 'src/auth/decorators/parse-json-field-name.decorator';
 
 @Controller('products')
 export class ProductController {
@@ -50,9 +51,9 @@ export class ProductController {
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles('manufacturer')
   @UseInterceptors(FileInterceptor('picture'))
-  @UsePipes(new ValidationPipe())
-  public async createOrUpdateProduct(
-    @Body(new ParseJSONPipe()) createProductDTO: CreateProductDTO,
+  public async createProduct(
+    @Body(new ParseJSONPipe('createProductDTO'))
+    createProductDTO: CreateProductDTO,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -64,7 +65,6 @@ export class ProductController {
     picture: Express.Multer.File,
     @CurrentUser() creator: User,
   ): Promise<number> {
-    console.dir(createProductDTO);
     return await this.productService.createProduct(
       createProductDTO,
       picture.buffer,
