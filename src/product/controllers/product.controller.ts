@@ -7,27 +7,23 @@ import {
   Param,
   ParseFilePipe,
   ParseIntPipe,
-  Patch,
   Post,
   Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
-import { ProductService } from '../services/product.service';
-import { Product } from '../entities/product.entity';
-import { CreateProductDTO } from '../dtos/create-product.dto';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
-import { User } from 'src/user/entities/user.entity';
-import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { AuthGuardJwt } from '../../auth/guards/auth-guard.jwt';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Constants } from 'src/type-utils/global.constants';
-import { ParseJSONPipe } from './parse-json.pipe';
-import { FieldName } from 'src/auth/decorators/parse-json-field-name.decorator';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
+import { Constants } from 'src/shared/type-utils/global.constants';
+import { User } from 'src/user/entities/user.entity';
+import { AuthGuardJwt } from '../../auth/guards/auth-guard.jwt';
+import { CreateProductDTO } from '../dtos/create-product.dto';
+import { Product } from '../entities/product.entity';
+import { ProductService } from '../services/product.service';
+import { ParseJSONPipe } from 'src/shared/pipes/parse-json.pipe';
 
 @Controller('products')
 export class ProductController {

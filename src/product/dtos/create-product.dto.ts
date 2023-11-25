@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsDecimal,
   IsInt,
@@ -7,6 +8,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import { IsIntegerOrDecimalConstraint } from 'src/shared/validation-constraints/is-integer-or-decimal.constraint';
 
 export class CreateProductDTO {
   @IsString()
@@ -28,7 +30,7 @@ export class CreateProductDTO {
   public material!: string;
 
   // @IsDecimal({ decimal_digits: '2,10' }) // precision: 2, scale: 1
-  @IsNumber()
+  @Type(() => IsIntegerOrDecimalConstraint)
   @Min(0.0)
   public price!: number;
 

@@ -1,7 +1,7 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Manufacturer } from '../entities/manufacturer.entity';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { SortType } from 'src/type-utils/global.types';
+import { SortType } from 'src/shared/type-utils/global.types';
 import { UserService } from 'src/user/services/user.service';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { AuthService } from 'src/auth/services/auth.service';

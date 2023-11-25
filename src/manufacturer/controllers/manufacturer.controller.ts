@@ -12,7 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
-import { SortType } from 'src/type-utils/global.types';
+import { SortType } from 'src/shared/type-utils/global.types';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { Manufacturer } from '../entities/manufacturer.entity';
 import { ManufacturerService } from '../services/manufacturer.service';

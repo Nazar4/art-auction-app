@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoneyAccount } from '../entities/money-account.entity';
 import { Repository } from 'typeorm';
+import { BalanceInUseGreaterThanBalanceException } from '../errors/balance-in-use-greater-than-balance.error';
 
 @Injectable()
 export class MoneyAccountService {
@@ -11,6 +12,39 @@ export class MoneyAccountService {
     @InjectRepository(MoneyAccount)
     private readonly moneyAccountRepository: Repository<MoneyAccount>,
   ) {}
+
+  public async createInitialMoneyAccount(name: string) {
+    return await this.moneyAccountRepository.save(
+      new MoneyAccount({
+        balance: 0.0,
+        balanceInUse: 0.0,
+        name: this.generateUniqueName(name),
+      }),
+    );
+  }
+
+  public async encreaseBalanceInUse(
+    moneyAccount: MoneyAccount,
+    balanceInUse: number,
+  ): Promise<void> {
+    moneyAccount.balanceInUse += balanceInUse;
+    if (moneyAccount.balanceInUse > moneyAccount.balance) {
+      throw new BalanceInUseGreaterThanBalanceException(
+        moneyAccount.balanceInUse,
+        moneyAccount.balance,
+      );
+    }
+
+    await this.moneyAccountRepository.save(moneyAccount);
+  }
+
+  public async decreaseBalanceInUse(
+    moneyAccount: MoneyAccount,
+    balanceInUse: number,
+  ): Promise<void> {
+    moneyAccount.balanceInUse -= balanceInUse;
+    await this.moneyAccountRepository.save(moneyAccount);
+  }
 
   public async getMoneyAccountById(
     id: number,
@@ -23,8 +57,6 @@ export class MoneyAccountService {
     name: string,
   ): Promise<MoneyAccount | undefined> {
     const moneyAccount = await this.moneyAccountRepository.findOneBy({ name });
-    console.log(name);
-    console.dir(moneyAccount);
     return moneyAccount;
   }
 
@@ -51,5 +83,16 @@ export class MoneyAccountService {
       ...moneyAccount,
       name,
     });
+  }
+
+  private generateUniqueName(name: string): string {
+    const currentTime = new Date().getTime();
+    const randomDigits = Math.floor(Math.random() * 1000000)
+      .toString()
+      .padStart(6, '0');
+
+    const uniqueName = `${name}_${currentTime}_${randomDigits}`;
+
+    return uniqueName;
   }
 }

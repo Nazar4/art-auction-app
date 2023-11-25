@@ -14,6 +14,10 @@ import {
 @Entity({ name: 'auction_lot' })
 @Unique(['auction'])
 export class AuctionLot {
+  constructor(partial?: Partial<AuctionLot>) {
+    Object.assign(this, partial);
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 

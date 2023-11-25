@@ -12,6 +12,7 @@ import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MoneyAccountModule } from './money-account/money-account.module';
+import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { MoneyAccountModule } from './money-account/money-account.module';
     AuctionLotModule,
     AuctionModule,
     AuthModule,
+    SharedModule,
   ],
   controllers: [],
   providers: [],

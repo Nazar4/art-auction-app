@@ -10,6 +10,10 @@ import {
 
 @Entity({ name: 'request' })
 export class Request {
+  constructor(partial?: Partial<Request>) {
+    Object.assign(this, partial);
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 

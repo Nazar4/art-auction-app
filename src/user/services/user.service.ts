@@ -4,13 +4,15 @@ import { RoleService } from 'src/role/services/role.service';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { User } from '../entities/user.entity';
 import { UserRepository } from '../user.repository';
-import { Role } from 'src/type-utils/global.types';
+import { Role } from 'src/shared/type-utils/global.types';
+import { MoneyAccountService } from 'src/money-account/services/money-account.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly authService: AuthService,
     private readonly roleService: RoleService,
+    private readonly moneyAccountService: MoneyAccountService,
     private readonly userRepository: UserRepository,
   ) {}
 
@@ -29,7 +31,9 @@ export class UserService {
     });
 
     // await this.roleService.assignUserRole(user);
-    // await this.moneyAccountService.createMoneyAccountForUser(user);
+    const moneyAccount =
+      await this.moneyAccountService.createInitialMoneyAccount(user.username);
+    user.moneyAccount = moneyAccount;
 
     return await this.userRepository.save(user);
   }
