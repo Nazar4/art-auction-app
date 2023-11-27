@@ -2,9 +2,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuctionLotService } from 'src/auction-lot/services/auction-lot.service';
 import { MoneyAccountService } from 'src/money-account/services/money-account.service';
 import { User } from 'src/user/entities/user.entity';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateRequestDTO } from '../dtos/create-request.dto';
 import { Request } from '../entities/request.entity';
+import { AuctionLot } from 'src/auction-lot/entities/auction-lot.entity';
+import { BadRequestException } from '@nestjs/common';
 
 export class RequestService {
   constructor(
@@ -12,6 +14,7 @@ export class RequestService {
     private readonly requestRepository: Repository<Request>,
     private readonly auctionLotService: AuctionLotService,
     private readonly moneyAccountService: MoneyAccountService,
+    private readonly dataSource: DataSource,
   ) {}
 
   private getRequestBaseQuery(): SelectQueryBuilder<Request> {
@@ -22,10 +25,31 @@ export class RequestService {
     user: User,
     { sum, auctionLotId }: CreateRequestDTO,
   ): Promise<Request> {
-    await this.moneyAccountService.encreaseBalanceInUse(user.moneyAccount, sum);
+    let auctionLot: AuctionLot;
 
-    const auctionLot =
-      await this.auctionLotService.getAuctionLotById(auctionLotId);
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      //first argument has to be entity to know which table to use
+      await this.moneyAccountService.encreaseBalanceInUse(
+        user.moneyAccount,
+        sum,
+        queryRunner,
+      );
+      auctionLot = await this.auctionLotService.getAuctionLotById(
+        auctionLotId,
+        queryRunner,
+      );
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new Error(err.message);
+    } finally {
+      await queryRunner.release();
+    }
 
     if (auctionLot.topBet < sum) {
       auctionLot.topBet = sum;
@@ -51,14 +75,16 @@ export class RequestService {
 
     this.moneyAccountService.decreaseBalanceInUse(moneyAccount, request.sum);
 
-    try {
-      const topBetRequest = await this.findNewTopBetRequest(
-        request.auctionLot.id,
-      );
+    const topBetRequest = await this.findNewTopBetRequest(
+      request.auctionLot.id,
+    );
+
+    if (topBetRequest) {
       request.auctionLot.topBet = topBetRequest.sum;
-    } catch (e) {
+    } else {
       request.auctionLot.topBet = null;
     }
+
     request.auctionLot.requestsNumber--;
 
     this.auctionLotService.saveAuctionLot(request.auctionLot);
@@ -72,6 +98,6 @@ export class RequestService {
     return await this.getRequestBaseQuery()
       .where('req.auctionLot = :auctionLotId', { auctionLotId })
       .orderBy('req.sum')
-      .getOneOrFail();
+      .getOne();
   }
 }

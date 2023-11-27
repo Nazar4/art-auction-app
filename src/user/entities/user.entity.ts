@@ -51,7 +51,7 @@ export class User {
   address: Address;
 
   @OneToOne(() => MoneyAccount, {
-    lazy: true,
+    eager: true, //needs to be lazy true
     nullable: true,
     onDelete: 'CASCADE',
   })

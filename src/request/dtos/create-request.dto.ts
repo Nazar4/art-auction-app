@@ -1,11 +1,12 @@
-import { IsInt, IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsNotEmpty, IsNumber, IsPositive, Min } from 'class-validator';
+import { IsIntegerOrDecimalConstraint } from 'src/shared/validation-constraints/is-integer-or-decimal.constraint';
 
 export class CreateRequestDTO {
-  @IsNumber()
-  @Min(0.0)
+  @Type(() => IsIntegerOrDecimalConstraint)
   public sum!: number;
 
-  @IsInt()
   @IsNotEmpty()
+  @IsPositive()
   public auctionLotId!: number;
 }

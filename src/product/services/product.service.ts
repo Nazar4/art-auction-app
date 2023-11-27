@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '../entities/product.entity';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository, SelectQueryBuilder, QueryRunner } from 'typeorm';
 import { CreateProductDTO } from '../dtos/create-product.dto';
 import { Constants } from 'src/shared/type-utils/global.constants';
 import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
@@ -20,8 +20,14 @@ export class ProductService {
     return this.productRepository.createQueryBuilder('p');
   }
 
-  public async getProductById(id: number): Promise<Product> {
-    return await this.productRepository.findOneBy({ id });
+  public async getProductById(
+    id: number,
+    queryRunner?: QueryRunner,
+  ): Promise<Product> {
+    if (queryRunner) {
+      return await queryRunner.manager.findOneByOrFail(Product, { id });
+    }
+    return await this.productRepository.findOneByOrFail({ id });
   }
 
   //need to add pagination and make it decent

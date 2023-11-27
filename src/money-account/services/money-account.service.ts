@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoneyAccount } from '../entities/money-account.entity';
-import { Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { BalanceInUseGreaterThanBalanceException } from '../errors/balance-in-use-greater-than-balance.error';
 
 @Injectable()
@@ -26,8 +26,10 @@ export class MoneyAccountService {
   public async encreaseBalanceInUse(
     moneyAccount: MoneyAccount,
     balanceInUse: number,
+    queryRunner: QueryRunner,
   ): Promise<void> {
-    moneyAccount.balanceInUse += balanceInUse;
+    moneyAccount.balanceInUse =
+      Number(moneyAccount.balanceInUse) + Number(balanceInUse);
     if (moneyAccount.balanceInUse > moneyAccount.balance) {
       throw new BalanceInUseGreaterThanBalanceException(
         moneyAccount.balanceInUse,
@@ -35,7 +37,8 @@ export class MoneyAccountService {
       );
     }
 
-    await this.moneyAccountRepository.save(moneyAccount);
+    await queryRunner.manager.save(MoneyAccount, moneyAccount);
+    // await this.moneyAccountRepository.save(moneyAccount);
   }
 
   public async decreaseBalanceInUse(
