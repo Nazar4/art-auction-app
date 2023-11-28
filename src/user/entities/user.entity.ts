@@ -46,7 +46,11 @@ export class User {
   @JoinColumn({ name: 'role_id', referencedColumnName: 'id' })
   role: Role;
 
-  @OneToOne(() => Address, { lazy: true, nullable: true, onDelete: 'CASCADE' })
+  @OneToOne(() => Address, {
+    eager: false,
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'address_id', referencedColumnName: 'id' })
   address: Address;
 

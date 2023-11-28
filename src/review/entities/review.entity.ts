@@ -1,4 +1,5 @@
 import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
+import { ColumnNumericTransformer } from 'src/shared/transformers/column-numeric.transformer';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -21,7 +22,13 @@ export class Review {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'decimal', precision: 2, scale: 1, nullable: true })
+  @Column({
+    type: 'decimal',
+    transformer: new ColumnNumericTransformer(),
+    precision: 2,
+    scale: 1,
+    nullable: true,
+  })
   rating: number;
 
   @Column({ name: 'review_text', type: 'text' })
@@ -31,7 +38,7 @@ export class Review {
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   reviewer: User;
 
-  @ManyToOne(() => Manufacturer, { lazy: true, nullable: false })
+  @ManyToOne(() => Manufacturer, { eager: false, nullable: false })
   @JoinColumn({ name: 'manufacturer_id', referencedColumnName: 'id' })
   manufacturer: Manufacturer;
 }

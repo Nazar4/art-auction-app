@@ -28,6 +28,7 @@ import { SharedModule } from './shared/shared.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      supportBigNumbers: false, //to make sure numbers are loaded as numbers not as strings
       autoLoadEntities: true /* any entity registered with
                               forFeature will be registered automatically*/,
       synchronize: true /*property will drop tables, need to remove it

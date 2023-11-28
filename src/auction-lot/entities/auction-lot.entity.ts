@@ -1,5 +1,6 @@
 import { Auction } from 'src/auction/entities/auction.entity';
 import { Product } from 'src/product/entities/product.entity';
+import { ColumnNumericTransformer } from 'src/shared/transformers/column-numeric.transformer';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -27,18 +28,26 @@ export class AuctionLot {
   @Column({
     name: 'top_bet',
     type: 'decimal',
+    transformer: new ColumnNumericTransformer(),
     precision: 10,
     scale: 2,
     nullable: true,
   })
   topBet: number;
 
-  @Column({ name: 'initial_price', type: 'decimal', precision: 10, scale: 2 })
+  @Column({
+    name: 'initial_price',
+    type: 'decimal',
+    transformer: new ColumnNumericTransformer(),
+    precision: 10,
+    scale: 2,
+  })
   initialPrice: number;
 
   @Column({
     name: 'discarded_lot_fee',
     type: 'decimal',
+    transformer: new ColumnNumericTransformer(),
     precision: 10,
     scale: 2,
     default: 1500,
@@ -49,7 +58,7 @@ export class AuctionLot {
   @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
   product: Product;
 
-  @ManyToOne(() => User, { lazy: true, nullable: true })
+  @ManyToOne(() => User, { eager: false, nullable: true })
   @JoinColumn({ name: 'lot_winner', referencedColumnName: 'id' })
   winner: User;
 

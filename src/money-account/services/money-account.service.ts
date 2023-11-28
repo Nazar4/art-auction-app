@@ -28,8 +28,7 @@ export class MoneyAccountService {
     balanceInUse: number,
     queryRunner: QueryRunner,
   ): Promise<void> {
-    moneyAccount.balanceInUse =
-      Number(moneyAccount.balanceInUse) + Number(balanceInUse);
+    moneyAccount.balanceInUse += balanceInUse;
     if (moneyAccount.balanceInUse > moneyAccount.balance) {
       throw new BalanceInUseGreaterThanBalanceException(
         moneyAccount.balanceInUse,

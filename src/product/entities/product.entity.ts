@@ -1,4 +1,5 @@
 import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
+import { ColumnNumericTransformer } from 'src/shared/transformers/column-numeric.transformer';
 import {
   Column,
   Entity,
@@ -28,7 +29,12 @@ export class Product {
   @Column()
   material: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({
+    type: 'decimal',
+    transformer: new ColumnNumericTransformer(),
+    precision: 10,
+    scale: 2,
+  })
   price: number;
 
   @Column({ name: 'percentage_fee', type: 'decimal', precision: 10, scale: 2 })
@@ -40,7 +46,7 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @ManyToOne(() => Manufacturer, { lazy: true, nullable: false })
+  @ManyToOne(() => Manufacturer, { eager: false, nullable: false })
   @JoinColumn({ name: 'manufacturer', referencedColumnName: 'id' })
   creator: Manufacturer;
 }

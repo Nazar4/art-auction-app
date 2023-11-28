@@ -1,3 +1,4 @@
+import { ColumnNumericTransformer } from 'src/shared/transformers/column-numeric.transformer';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -21,6 +22,7 @@ export class Manufacturer {
   @Column({
     name: 'average_rating',
     type: 'decimal',
+    transformer: new ColumnNumericTransformer(),
     precision: 2,
     scale: 1,
     nullable: true,
@@ -33,7 +35,7 @@ export class Manufacturer {
   //   @Column({ name: 'active_until', type: 'datetime' })
   //   activeUntil: Date;
 
-  @OneToOne(() => User, { lazy: true, onDelete: 'CASCADE', nullable: false })
+  @OneToOne(() => User, { eager: false, onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 }
