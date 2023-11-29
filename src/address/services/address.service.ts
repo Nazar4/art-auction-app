@@ -15,7 +15,6 @@ export class AddressService {
   ) {}
 
   public async getAddressById(id: number): Promise<Address | undefined> {
-    this.logger.debug(`getOneById called with ${id}`);
     return await this.addressRepository.findOneBy({ id });
   }
 

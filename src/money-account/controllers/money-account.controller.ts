@@ -49,15 +49,15 @@ export class MoneyAccountController {
     @Param('id', ParseIntPipe) id: number,
     @Query('name') name: string,
   ): Promise<MoneyAccount> {
-    // if (address.organizerId !== user.id) {
-    //     throw new ForbiddenException(`Not authorized to modify this event`);
-    // }
     try {
       return await this.moneyAccountService.updateMoneyAccountNameById(
         id,
         name,
       );
     } catch (error) {
+      this.logger.log(
+        `/money-accounts/${id} delete, Message: ${error.message}`,
+      );
       throw new NotFoundException();
     }
   }
@@ -71,6 +71,9 @@ export class MoneyAccountController {
     try {
       await this.moneyAccountService.blockMoneyAccountById(id);
     } catch (error) {
+      this.logger.log(
+        `/money-accounts/${id} delete, Message: ${error.message}`,
+      );
       throw new NotFoundException();
     }
   }

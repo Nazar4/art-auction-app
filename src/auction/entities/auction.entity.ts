@@ -14,4 +14,7 @@ export class Auction {
 
   @Column({ name: 'end_date', type: 'datetime' })
   endDate: Date;
+
+  @Column({ name: 'auction_finished', default: false })
+  auctionFinished: boolean;
 }

@@ -33,8 +33,7 @@ export class AddressController {
   public async getAddressById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Address | undefined> {
-    const address = await this.addressService.getAddressById(id);
-    return address;
+    return await this.addressService.getAddressById(id);
   }
 
   @Post()
@@ -55,12 +54,11 @@ export class AddressController {
     const address = await this.addressService.getAddressById(id);
 
     if (!address) {
+      this.logger.log(
+        `/addresses/${id} patch, Message: Could not find address`,
+      );
       throw new NotFoundException();
     }
-
-    // if (address.organizerId !== user.id) {
-    //     throw new ForbiddenException(`Not authorized to modify this event`);
-    // }
 
     return await this.addressService.updateAddress(input, address);
   }
@@ -71,12 +69,10 @@ export class AddressController {
   public async deleteAddress(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<void> {
-    // if (address.organizerId !== user.id) {
-    //     throw new ForbiddenException(`Not authorized to modify this event`);
-    // }
     try {
       await this.addressService.deleteAddress(id);
     } catch (error) {
+      this.logger.log(`/addresses/${id} delete, Message: ${error.message}`);
       throw new NotFoundException();
     }
   }

@@ -27,6 +27,10 @@ export class RequestService {
     user: User,
     { sum, auctionLotId }: CreateRequestDTO,
   ): Promise<Request> {
+    if (this.userHasRequestForLot(user, auctionLotId)) {
+      throw new Error('You can not create more than 1 request');
+    }
+
     let auctionLot: AuctionLot;
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -67,6 +71,44 @@ export class RequestService {
     return request;
   }
 
+  private async userHasRequestForLot({ id }: User, auctionLotId: number) {
+    this.getRequestBaseQuery()
+      .where('req.user_id = :id', { id })
+      .andWhere('req.auction_lot = :auctionLotId', { auctionLotId })
+      .getCount();
+  }
+
+  public async updateRequest(id: number, sum: number, user: User) {
+    //need to also check if topBet request was changed and maybe new 1 is topBet
+
+    const request = await this.getRequestBaseQuery()
+      .where('req.id = :id', { id })
+      .leftJoinAndSelect('req.auctionLot', 'auction_lot')
+      .getOne();
+    console.dir(request);
+
+    const sumDifference = sum - request.sum;
+    request.sum = sum;
+
+    try {
+      await this.moneyAccountService.encreaseBalanceInUse(
+        user.moneyAccount,
+        sumDifference,
+      );
+    } catch (err) {
+      throw new Error(err.message);
+    }
+
+    if (sumDifference > 0) {
+      if (request.auctionLot.topBet < sum) {
+        request.auctionLot.topBet = sum;
+      }
+      this.auctionLotService.saveAuctionLot(request.auctionLot);
+    }
+
+    this.requestRepository.save(request);
+  }
+
   public async removeRequest(
     { id, moneyAccount }: User,
     requestId: number,
@@ -90,7 +132,6 @@ export class RequestService {
     const topBetRequest = await this.findNewTopBetRequest(
       request.auctionLot.id,
     );
-    this.logger.debug(`top bet request ${topBetRequest.id}`);
 
     if (topBetRequest) {
       request.auctionLot.topBet = topBetRequest.sum;

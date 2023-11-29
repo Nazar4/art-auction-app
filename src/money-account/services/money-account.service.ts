@@ -26,7 +26,7 @@ export class MoneyAccountService {
   public async encreaseBalanceInUse(
     moneyAccount: MoneyAccount,
     balanceInUse: number,
-    queryRunner: QueryRunner,
+    queryRunner?: QueryRunner,
   ): Promise<void> {
     moneyAccount.balanceInUse += balanceInUse;
     if (moneyAccount.balanceInUse > moneyAccount.balance) {
@@ -35,9 +35,11 @@ export class MoneyAccountService {
         moneyAccount.balance,
       );
     }
-
-    await queryRunner.manager.save(MoneyAccount, moneyAccount);
-    // await this.moneyAccountRepository.save(moneyAccount);
+    if (queryRunner) {
+      await queryRunner.manager.save(MoneyAccount, moneyAccount);
+    } else {
+      await this.moneyAccountRepository.save(moneyAccount);
+    }
   }
 
   public async decreaseBalanceInUse(

@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Param,
   ParseIntPipe,
   Post,
@@ -17,7 +18,20 @@ import { CreateAuctionLotDTO } from '../dtos/create-auction-lot.dto';
 
 @Controller('auction-lots')
 export class AuctionLotController {
+  private readonly logger = new Logger(AuctionLotController.name);
   constructor(private readonly auctionLotService: AuctionLotService) {}
+
+  @Get()
+  @UseGuards(AuthGuardJwt)
+  public async getAllActiveAuctionLots(): Promise<AuctionLot[]> {
+    return await this.auctionLotService.getAllActiveAuctionLots();
+  }
+
+  @Get('/with-dates')
+  @UseGuards(AuthGuardJwt)
+  public async getAllActiveAuctionLotsWithDates(): Promise<AuctionLot[]> {
+    return await this.auctionLotService.getAllActiveAuctionLotsWithDates();
+  }
 
   @Get(':id')
   @UseGuards(AuthGuardJwt)
@@ -37,6 +51,7 @@ export class AuctionLotController {
     try {
       return await this.auctionLotService.createAuctionLot(createAuctionLotDTO);
     } catch (error) {
+      this.logger.warn(`/auction-lots post, Message: ${error.message}`);
       throw new BadRequestException(error.message);
     }
   }

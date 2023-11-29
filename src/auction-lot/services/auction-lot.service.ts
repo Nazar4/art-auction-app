@@ -44,13 +44,25 @@ export class AuctionLotService {
     return await this.auctionLotRepository.findOneByOrFail({ id });
   }
 
+  public async getAllActiveAuctionLots(): Promise<AuctionLot[]> {
+    return await this.getAuctionLotBaseQuery()
+      .where('al.winner IS NULL')
+      .getMany();
+  }
+
+  public async getAllActiveAuctionLotsWithDates(): Promise<AuctionLot[]> {
+    return await this.getAuctionLotBaseQuery()
+      .where('al.winner IS NULL')
+      .leftJoinAndSelect('al.auction', 'auction_id')
+      .getMany();
+  }
+
   public async createAuctionLot({
     startDate,
     endDate,
     initialPrice,
     productId,
   }: CreateAuctionLotDTO): Promise<AuctionLot> {
-    console.log(productId);
     let auction: Auction;
     let product: Product;
 

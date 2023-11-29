@@ -3,6 +3,7 @@ import {
   Controller,
   FileTypeValidator,
   Get,
+  Logger,
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
@@ -27,8 +28,11 @@ import { ParseJSONPipe } from 'src/shared/pipes/parse-json.pipe';
 
 @Controller('products')
 export class ProductController {
+  private readonly logger = new Logger(ProductController.name);
+
   constructor(private readonly productService: ProductService) {}
 
+  //need to add pagination and find all and only if man id given then filter
   @Get()
   public async getProductsByManufacturerId(
     @Query('manufacturerId', ParseIntPipe) id: number,

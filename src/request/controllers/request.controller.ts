@@ -5,9 +5,12 @@ import {
   Delete,
   HttpCode,
   Logger,
+  NotFoundException,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -20,6 +23,8 @@ import { User } from 'src/user/entities/user.entity';
 import { CreateRequestDTO } from '../dtos/create-request.dto';
 import { Request } from '../entities/request.entity';
 import { RequestService } from '../services/request.service';
+import { ParsePositiveIntPipe } from 'src/shared/pipes/parse-positive-int.pipe';
+import { EntityNotFoundError } from 'typeorm';
 
 @Controller('requests')
 export class RequestController {
@@ -39,6 +44,31 @@ export class RequestController {
     try {
       return await this.requestService.createRequest(user, createRequestDTO);
     } catch (error) {
+      this.logger.warn(`/requests post, Message: ${error.message}`);
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Patch(':id')
+  @UsePipes(new ValidationPipe())
+  @UseGuards(AuthGuardJwt, RolesGuard)
+  @Roles('user')
+  @HttpCode(202)
+  public async updateRequest(
+    @Param('id', ParseIntPipe)
+    id: number,
+    @Query('sum', ParsePositiveIntPipe)
+    sum: number,
+    @CurrentUser()
+    user: User,
+  ): Promise<void> {
+    try {
+      return await this.requestService.updateRequest(id, sum, user);
+    } catch (error) {
+      this.logger.log(`/requests/${id} patch, Message: ${error.message}`);
+      if (error instanceof EntityNotFoundError) {
+        throw new NotFoundException();
+      }
       throw new BadRequestException(error.message);
     }
   }

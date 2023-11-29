@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from '../entities/review.entity';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateReviewDTO } from '../dtos/create-review.dto';
 import { ManufacturerService } from 'src/manufacturer/services/manufacturer.service';
 import { User } from 'src/user/entities/user.entity';
@@ -18,6 +18,15 @@ export class ReviewService {
 
   public async getReviewById(id: number): Promise<Review | undefined> {
     return await this.reviewRepository.findOneBy({ id });
+  }
+
+  public async deleteReview(id: number): Promise<DeleteResult> {
+    await this.reviewRepository.findOneByOrFail({ id });
+    return await this.reviewRepository
+      .createQueryBuilder('review')
+      .delete()
+      .where('id = :id', { id })
+      .execute();
   }
 
   public async createReview(

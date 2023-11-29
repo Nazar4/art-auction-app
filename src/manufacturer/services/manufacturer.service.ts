@@ -1,10 +1,11 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Manufacturer } from '../entities/manufacturer.entity';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { SortType } from 'src/shared/type-utils/global.types';
+import { Role, SortType } from 'src/shared/type-utils/global.types';
 import { UserService } from 'src/user/services/user.service';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { AuthService } from 'src/auth/services/auth.service';
+import { Constants } from 'src/shared/type-utils/global.constants';
 
 export class ManufacturerService {
   constructor(
@@ -23,7 +24,7 @@ export class ManufacturerService {
   ): Promise<string> {
     const newUser = await this.userService.createUser(
       createUserDto,
-      'manufacturer',
+      Constants.MANUFACTURER_ROLE as Role,
     );
     const manufacturer = new Manufacturer({ user: newUser });
     await this.manufacturerRepository.save(manufacturer);

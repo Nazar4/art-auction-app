@@ -23,4 +23,9 @@ export class AuctionService {
       new Auction({ startDate, endDate }),
     );
   }
+
+  public async finishAuction(auction: Auction): Promise<Auction> {
+    auction.auctionFinished = true;
+    return await this.auctionRepository.save(auction);
+  }
 }
