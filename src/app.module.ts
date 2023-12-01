@@ -13,6 +13,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { MoneyAccountModule } from './money-account/money-account.module';
 import { SharedModule } from './shared/shared.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -34,6 +36,20 @@ import { SharedModule } from './shared/shared.module';
       synchronize: true /*property will drop tables, need to remove it
                          after schemas creation*/,
     }),
+    ScheduleModule.forRoot(),
+    EventEmitterModule.forRoot({
+      // set this to `true` to use wildcards
+      wildcard: false,
+      // delimiter: '.', delimiter used to segment namespaces
+      newListener: false,
+      removeListener: false,
+      // the maximum amount of listeners that can be assigned to an event
+      maxListeners: 5,
+      verboseMemoryLeak: true,
+      // disable throwing uncaughtException if an error event is emitted and it has no listeners
+      ignoreErrors: false,
+    }),
+
     UserModule,
     AddressModule,
     RoleModule,

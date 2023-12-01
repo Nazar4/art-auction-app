@@ -27,9 +27,9 @@ export class RequestService {
     user: User,
     { sum, auctionLotId }: CreateRequestDTO,
   ): Promise<Request> {
-    if (this.userHasRequestForLot(user, auctionLotId)) {
-      throw new Error('You can not create more than 1 request');
-    }
+    // if (this.userHasRequestForLot(user, auctionLotId)) {
+    //   throw new Error('You can not create more than 1 request');
+    // }
 
     let auctionLot: AuctionLot;
 
@@ -80,12 +80,10 @@ export class RequestService {
 
   public async updateRequest(id: number, sum: number, user: User) {
     //need to also check if topBet request was changed and maybe new 1 is topBet
-
     const request = await this.getRequestBaseQuery()
       .where('req.id = :id', { id })
       .leftJoinAndSelect('req.auctionLot', 'auction_lot')
       .getOne();
-    console.dir(request);
 
     const sumDifference = sum - request.sum;
     request.sum = sum;

@@ -20,13 +20,7 @@ export class ProductService {
     return this.productRepository.createQueryBuilder('p');
   }
 
-  public async getProductById(
-    id: number,
-    queryRunner?: QueryRunner,
-  ): Promise<Product> {
-    if (queryRunner) {
-      return await queryRunner.manager.findOneByOrFail(Product, { id });
-    }
+  public async getProductById(id: number): Promise<Product> {
     return await this.productRepository.findOneByOrFail({ id });
   }
 

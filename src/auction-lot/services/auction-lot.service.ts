@@ -1,17 +1,12 @@
+import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Auction } from 'src/auction/entities/auction.entity';
 import { AuctionService } from 'src/auction/services/auction.service';
-import {
-  Repository,
-  SelectQueryBuilder,
-  QueryRunner,
-  DataSource,
-} from 'typeorm';
+import { Product } from 'src/product/entities/product.entity';
+import { ProductService } from 'src/product/services/product.service';
+import { QueryRunner, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateAuctionLotDTO } from '../dtos/create-auction-lot.dto';
 import { AuctionLot } from '../entities/auction-lot.entity';
-import { ProductService } from 'src/product/services/product.service';
-import { Logger } from '@nestjs/common';
-import { Auction } from 'src/auction/entities/auction.entity';
-import { Product } from 'src/product/entities/product.entity';
 
 export class AuctionLotService {
   private readonly logger = new Logger(AuctionLotService.name);
@@ -21,7 +16,6 @@ export class AuctionLotService {
     private readonly auctionLotRepository: Repository<AuctionLot>,
     private readonly auctionService: AuctionService,
     private readonly productService: ProductService,
-    private readonly dataSource: DataSource,
   ) {}
 
   private getAuctionLotBaseQuery(): SelectQueryBuilder<AuctionLot> {
@@ -66,28 +60,14 @@ export class AuctionLotService {
     let auction: Auction;
     let product: Product;
 
-    const queryRunner = this.dataSource.createQueryRunner();
+    product = await this.productService.getProductById(productId);
 
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      auction = await this.auctionService.createAuction(
-        startDate,
-        endDate,
-        queryRunner,
-      );
-      product = await this.productService.getProductById(
-        productId,
-        queryRunner,
-      );
-
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new Error(err.message);
-    } finally {
-      await queryRunner.release();
+    if (!product) {
+      throw new Error(`Could not find product with id: ${productId}`);
     }
+
+    auction = await this.auctionService.createAuction(startDate, endDate);
+
     return await this.auctionLotRepository.save(
       new AuctionLot({ initialPrice, product, auction }),
     );
