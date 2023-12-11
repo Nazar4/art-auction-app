@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 import { Auction } from '../entities/auction.entity';
-import { LessThanOrEqual, QueryRunner, Repository } from 'typeorm';
 
 export class AuctionService {
   constructor(

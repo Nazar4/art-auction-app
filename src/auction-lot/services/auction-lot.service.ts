@@ -7,6 +7,7 @@ import { ProductService } from 'src/product/services/product.service';
 import { QueryRunner, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateAuctionLotDTO } from '../dtos/create-auction-lot.dto';
 import { AuctionLot } from '../entities/auction-lot.entity';
+import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
 
 export class AuctionLotService {
   private readonly logger = new Logger(AuctionLotService.name);
@@ -71,5 +72,15 @@ export class AuctionLotService {
     return await this.auctionLotRepository.save(
       new AuctionLot({ initialPrice, product, auction }),
     );
+  }
+
+  public async getAuctionLotByAuctionId(id: number): Promise<AuctionLot> {
+    return await this.getAuctionLotBaseQuery()
+      .innerJoinAndSelect('al.product', 'product')
+      .innerJoinAndSelect('product.creator', 'manufacturer')
+      .innerJoinAndSelect('manufacturer.user', 'user')
+      .innerJoinAndSelect('user.moneyAccount', 'moneyAccount')
+      .where('al.auction_id = :id', { id })
+      .getOneOrFail();
   }
 }

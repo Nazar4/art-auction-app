@@ -27,9 +27,9 @@ export class RequestService {
     user: User,
     { sum, auctionLotId }: CreateRequestDTO,
   ): Promise<Request> {
-    // if (this.userHasRequestForLot(user, auctionLotId)) {
-    //   throw new Error('You can not create more than 1 request');
-    // }
+    if (this.userHasRequestForLot(user, auctionLotId)) {
+      throw new Error('You can not create more than 1 request');
+    }
 
     let auctionLot: AuctionLot;
 
@@ -149,5 +149,17 @@ export class RequestService {
       .where('req.auction_lot = :auctionLotId', { auctionLotId })
       .orderBy('req.sum', 'DESC')
       .getOne();
+  }
+
+  public async getRequestByAuctionLotIdAndSum(
+    auctionLotId: number,
+    sum: number,
+  ): Promise<Request | undefined> {
+    return await this.getRequestBaseQuery()
+      .where('req.auction_lot = :auctionLotId', { auctionLotId })
+      .innerJoinAndSelect('req.user', 'user')
+      .innerJoinAndSelect('user.moneyAccount', 'moneyAccount')
+      .andWhere('req.sum = :sum', { sum })
+      .getOneOrFail();
   }
 }
