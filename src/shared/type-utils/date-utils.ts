@@ -5,8 +5,8 @@ export class DateUtils {
     }
     const timeDifference = endDate.getTime() - startDate.getTime();
 
-    const oneDayInMilliseconds = 30 * 24 * 60 * 60 * 1000; //todo need to change it to be more precise
+    const oneMonthInMilliseconds = 30 * 24 * 60 * 60 * 1000; //todo need to change it to be more precise
 
-    return timeDifference >= oneDayInMilliseconds;
+    return timeDifference >= oneMonthInMilliseconds;
   }
 }

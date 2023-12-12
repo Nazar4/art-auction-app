@@ -20,22 +20,19 @@ export class AuctionEventService {
   @OnEvent('auction.finished', { async: true, promisify: true })
   private async handleAuctionFinished(event: AuctionFinishedEvent) {
     const auction = event.auction;
-    const queryRunner = this.dataSource.createQueryRunner();
 
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      this.auctionService.finishAuction(auction);
+    this.auctionService.finishAuction(auction);
 
-      const auctionLot = await this.auctionLotService.getAuctionLotByAuctionId(
-        auction.id,
-      );
-      const manufacturer = auctionLot.product.creator;
+    const auctionLot = await this.auctionLotService.getAuctionLotByAuctionId(
+      auction.id,
+    );
+    const manufacturer = auctionLot.product.creator;
 
-      const dataSource: any[] = [];
+    const entities: any[] = [];
 
+    await this.dataSource.transaction(async (manager) => {
       if (auctionLot.requestsNumber === 0 && !(auctionLot.topBet > 0)) {
-        dataSource.push(manufacturer.user.moneyAccount);
+        entities.push(manufacturer.user.moneyAccount);
         manufacturer.user.moneyAccount.balance -= auctionLot.discardedLotFee;
       } else {
         const request =
@@ -43,32 +40,24 @@ export class AuctionEventService {
             auctionLot.id,
             auctionLot.topBet,
           );
-        dataSource.push(request.user.moneyAccount, request);
+        entities.push(request.user.moneyAccount, request);
         request.user.moneyAccount.balance -= request.sum;
         request.user.moneyAccount.balanceInUse -= request.sum;
         request.success = true;
         auctionLot.winner = request.user;
 
-        dataSource.push(manufacturer.user.moneyAccount, manufacturer);
+        entities.push(manufacturer.user.moneyAccount, manufacturer);
         manufacturer.user.moneyAccount.balance += auctionLot.topBet;
         manufacturer.productsSold += 1;
       }
 
-      await Promise.all(
-        dataSource.map((entity) => queryRunner.manager.save(entity)),
-      );
-
-      await queryRunner.commitTransaction();
+      await Promise.all(entities.map((entity) => manager.save(entity)));
 
       this.logger.log(`Auction finished successfully. Changes saved.`);
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      this.logger.error(
-        `Error handling auction finished event: ${error.message}`,
-      );
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
+
+      // this.logger.error(
+      //   `Error handling auction finished event: ${error.message}`,
+      // );
+    });
   }
 }

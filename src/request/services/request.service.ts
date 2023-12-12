@@ -1,8 +1,8 @@
-import { ForbiddenException, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AuctionLot } from 'src/auction-lot/entities/auction-lot.entity';
 import { AuctionLotService } from 'src/auction-lot/services/auction-lot.service';
 import { MoneyAccountService } from 'src/money-account/services/money-account.service';
+import { IllegalStateException } from 'src/shared/exceptions/IllegalStateException';
 import { User } from 'src/user/entities/user.entity';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateRequestDTO } from '../dtos/create-request.dto';
@@ -27,11 +27,22 @@ export class RequestService {
     user: User,
     { sum, auctionLotId }: CreateRequestDTO,
   ): Promise<Request> {
+    const auctionLot =
+      await this.auctionLotService.getAuctionLotByIdWithAuction(auctionLotId);
+
+    if (
+      !auctionLot ||
+      !auctionLot.auction ||
+      auctionLot.auction.endDate.getTime() < Date.now()
+    ) {
+      throw new IllegalStateException(
+        'The auction is already finished or the request is invalid.',
+      );
+    }
+
     if (this.userHasRequestForLot(user, auctionLotId)) {
       throw new Error('You can not create more than 1 request');
     }
-
-    let auctionLot: AuctionLot;
 
     const queryRunner = this.dataSource.createQueryRunner();
 
@@ -44,10 +55,10 @@ export class RequestService {
         sum,
         queryRunner,
       );
-      auctionLot = await this.auctionLotService.getAuctionLotById(
-        auctionLotId,
-        queryRunner,
-      );
+      // auctionLot = await this.auctionLotService.getAuctionLotById(
+      //   auctionLotId,
+      //   queryRunner,
+      // );
 
       await queryRunner.commitTransaction();
     } catch (err) {
@@ -79,13 +90,14 @@ export class RequestService {
   }
 
   public async updateRequest(id: number, sum: number, user: User) {
-    //need to also check if topBet request was changed and maybe new 1 is topBet
     const request = await this.getRequestBaseQuery()
       .where('req.id = :id', { id })
       .leftJoinAndSelect('req.auctionLot', 'auction_lot')
       .getOne();
 
     const sumDifference = sum - request.sum;
+    const wasTopBet = request.auctionLot.topBet === request.sum;
+
     request.sum = sum;
 
     try {
@@ -97,10 +109,22 @@ export class RequestService {
       throw new Error(err.message);
     }
 
-    if (sumDifference > 0) {
-      if (request.auctionLot.topBet < sum) {
-        request.auctionLot.topBet = sum;
-      }
+    if (wasTopBet && sumDifference < 0) {
+      // The request being updated was previously the top bet and the sum was decreased
+      // so need to find new top bet request
+      const newTopBetRequest = await this.findNewTopBetRequest(
+        request.auctionLot.id,
+      );
+      request.auctionLot.topBet = newTopBetRequest
+        ? newTopBetRequest.sum
+        : null;
+      this.auctionLotService.saveAuctionLot(request.auctionLot);
+    } else if (
+      sumDifference > 0 &&
+      (!request.auctionLot.topBet || request.auctionLot.topBet < sum)
+    ) {
+      // The sum increased and now it is new top bet
+      request.auctionLot.topBet = sum;
       this.auctionLotService.saveAuctionLot(request.auctionLot);
     }
 
@@ -111,16 +135,21 @@ export class RequestService {
     { id, moneyAccount }: User,
     requestId: number,
   ): Promise<void> {
-    //need to also check whether auction was already finished
-
     const request = await this.getRequestBaseQuery()
       .where('req.id = :requestId', { requestId })
       .andWhere('req.user_id = :id', { id })
       .leftJoinAndSelect('req.auctionLot', 'auction_lot')
+      .leftJoinAndSelect('auction_lot.auction', 'auction')
       .getOne();
 
-    if (!request) {
-      throw new ForbiddenException();
+    if (
+      !request ||
+      !request.auctionLot ||
+      request.auctionLot.auction.endDate.getTime() < Date.now()
+    ) {
+      throw new IllegalStateException(
+        'The auction is already finished or the request is invalid.',
+      );
     }
 
     this.moneyAccountService.decreaseBalanceInUse(moneyAccount, request.sum);
@@ -131,12 +160,7 @@ export class RequestService {
       request.auctionLot.id,
     );
 
-    if (topBetRequest) {
-      request.auctionLot.topBet = topBetRequest.sum;
-    } else {
-      request.auctionLot.topBet = null;
-    }
-
+    request.auctionLot.topBet = topBetRequest ? topBetRequest.sum : null;
     request.auctionLot.requestsNumber--;
 
     this.auctionLotService.saveAuctionLot(request.auctionLot);

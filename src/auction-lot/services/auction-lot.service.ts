@@ -39,6 +39,15 @@ export class AuctionLotService {
     return await this.auctionLotRepository.findOneByOrFail({ id });
   }
 
+  public async getAuctionLotByIdWithAuction(
+    id: number,
+  ): Promise<AuctionLot | undefined> {
+    return await this.getAuctionLotBaseQuery()
+      .leftJoinAndSelect('al.auction', 'auction')
+      .where('al.id = :id', { id })
+      .getOne();
+  }
+
   public async getAllActiveAuctionLots(): Promise<AuctionLot[]> {
     return await this.getAuctionLotBaseQuery()
       .where('al.winner IS NULL')
