@@ -15,6 +15,7 @@ import { MoneyAccountModule } from './money-account/money-account.module';
 import { SharedModule } from './shared/shared.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SeederModule } from './seeder/seeder.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuctionModule,
     AuthModule,
     SharedModule,
+    SeederModule,
   ],
   controllers: [],
   providers: [],
