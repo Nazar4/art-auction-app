@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { IllegalStateException } from '../IllegalStateException';
+import { IllegalArgumentException } from '../IllegalArgumentException';
 
-@Catch(IllegalStateException) //can put multiple exceptions here
+@Catch(IllegalStateException, IllegalArgumentException) //can put multiple exceptions here
 export class CustomExceptionFilter implements ExceptionFilter {
   catch(exception: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();

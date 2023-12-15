@@ -1,15 +1,24 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Review } from '../entities/review.entity';
-import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  DataSource,
+  DeleteResult,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { CreateReviewDTO } from '../dtos/create-review.dto';
 import { ManufacturerService } from 'src/manufacturer/services/manufacturer.service';
 import { User } from 'src/user/entities/user.entity';
+import { AuctionLotView } from 'src/auction-lot/entities/auction-lot.view.entity';
+import { IllegalStateException } from 'src/shared/exceptions/IllegalStateException';
+import { IllegalArgumentException } from 'src/shared/exceptions/IllegalArgumentException';
 
 export class ReviewService {
   constructor(
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
     private readonly manfuacturerService: ManufacturerService,
+    private readonly dataSource: DataSource,
   ) {}
 
   private getReviewBaseQuery(): SelectQueryBuilder<Review> {
@@ -36,7 +45,22 @@ export class ReviewService {
     const manufacturer = await this.manfuacturerService.getManufacturerById(
       createReviewDTO.manufacturerId,
     );
-    //need to first check that user can make a review
+    await this.dataSource.manager
+      .findOneBy(AuctionLotView, {
+        manufacturer: createReviewDTO.manufacturerId,
+      })
+      .then((entity) => {
+        if (!entity) {
+          throw new IllegalArgumentException(
+            `Manufacturer with id: ${createReviewDTO.manufacturerId} did not create any products`,
+          );
+        }
+        if (entity.winner !== creator.id) {
+          throw new IllegalStateException(
+            `User: ${creator.username} can not create review for this manufacturer`,
+          );
+        }
+      });
     return await this.reviewRepository.save(
       new Review({ ...createReviewDTO, manufacturer, reviewer: creator }),
     );

@@ -1,12 +1,15 @@
 import {
+  Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   Logger,
   NotFoundException,
   Param,
   ParseIntPipe,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +18,9 @@ import { ReviewService } from '../services/review.service';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
+import { CreateReviewDTO } from '../dtos/create-review.dto';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from 'src/user/entities/user.entity';
 
 @Controller('reviews')
 export class ReviewController {
@@ -37,7 +43,21 @@ export class ReviewController {
     return await this.reviewService.getReviewById(id);
   }
 
-  //post additional checks
+  @Post()
+  @HttpCode(201)
+  @UseGuards(AuthGuardJwt, RolesGuard)
+  @Roles('user')
+  public async createReveiw(
+    @Body() review: CreateReviewDTO,
+    @CurrentUser() creator: User,
+  ): Promise<void> {
+    try {
+      await this.reviewService.createReview(review, creator);
+    } catch (error) {
+      this.logger.log(`/reviews create, Message: ${error.message}`);
+      throw new ForbiddenException();
+    }
+  }
 
   //patch not sure
 
@@ -51,7 +71,7 @@ export class ReviewController {
     try {
       await this.reviewService.deleteReview(id);
     } catch (error) {
-      this.logger.log(`/addresses/${id} delete, Message: ${error.message}`);
+      this.logger.log(`/reviews/${id} delete, Message: ${error.message}`);
       throw new NotFoundException();
     }
   }
