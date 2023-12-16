@@ -33,6 +33,7 @@ export class AuctionEventService {
     await this.dataSource.transaction(async (manager) => {
       if (auctionLot.requestsNumber === 0 && !(auctionLot.topBet > 0)) {
         entities.push(manufacturer.user.moneyAccount);
+        //need to do this in special service that will handle transactions with payments
         manufacturer.user.moneyAccount.balance -= auctionLot.discardedLotFee;
       } else {
         const request =

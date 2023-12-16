@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -11,6 +12,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -21,6 +23,7 @@ import { AddressService } from '../services/address.service';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 
 @Controller('addresses')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AddressController {
   private readonly logger = new Logger(AddressController.name);
 
@@ -29,7 +32,6 @@ export class AddressController {
   @Get(':id')
   @UseGuards(AuthGuardJwt)
   // @UsePipes(new ValidationPipe({transform: true}))
-  // @UseInterceptors(ClassSerializerInterceptor)
   public async getAddressById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Address | undefined> {
@@ -50,7 +52,7 @@ export class AddressController {
   public async udpateAddress(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: UpdateAddressDTO,
-  ) {
+  ): Promise<Address> {
     const address = await this.addressService.getAddressById(id);
 
     if (!address) {

@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   Logger,
@@ -8,6 +9,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -23,12 +25,6 @@ export class ManufacturerController {
 
   constructor(private readonly manufacturerService: ManufacturerService) {}
 
-  // @Get()
-  // @UseGuards(AuthGuardJwt)
-  // public async getAll(): Promise<User[]> {
-  //   return await this.manufacturerService.getAll();
-  // }
-
   @Post()
   @UsePipes(new ValidationPipe())
   public async registerManufacturer(
@@ -38,6 +34,7 @@ export class ManufacturerController {
   }
 
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt)
   public async getManufacturersSortedByAverageRating(
     @Query('sortType') sortType: SortType,
@@ -48,6 +45,7 @@ export class ManufacturerController {
   }
 
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   public async getManufacturerByUserId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Manufacturer> {

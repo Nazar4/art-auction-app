@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'address' })
@@ -20,4 +21,9 @@ export class Address {
 
   @Column({ length: 50 })
   country: string;
+
+  @Expose()
+  get formattedAddress(): string {
+    return `${this.country}, ${this.postalCode}, ${this.city}, ${this.streetName}`;
+  }
 }

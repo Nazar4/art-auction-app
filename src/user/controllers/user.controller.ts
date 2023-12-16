@@ -1,10 +1,12 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   Logger,
   Post,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -28,8 +30,8 @@ export class UserController {
 
   @Get()
   @UseGuards(AuthGuardJwt)
+  @UseInterceptors(ClassSerializerInterceptor)
   public async getAll(@CurrentUser() user: User): Promise<User[]> {
-    console.dir(user);
     return await this.userService.getAll();
   }
 

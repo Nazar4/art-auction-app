@@ -36,7 +36,11 @@ export class AuctionLotService {
     if (queryRunner) {
       return await queryRunner.manager.findOneByOrFail(AuctionLot, { id });
     }
-    return await this.auctionLotRepository.findOneByOrFail({ id });
+    return await this.getAuctionLotBaseQuery()
+      .leftJoinAndSelect('al.winner', 'winner')
+      .leftJoinAndSelect('al.product', 'product')
+      .where('al.id = :id', { id })
+      .getOneOrFail();
   }
 
   public async getAuctionLotByIdWithAuction(
@@ -50,14 +54,16 @@ export class AuctionLotService {
 
   public async getAllActiveAuctionLots(): Promise<AuctionLot[]> {
     return await this.getAuctionLotBaseQuery()
+      .select(['al.id'])
+      .leftJoinAndSelect('al.product', 'product')
       .where('al.winner IS NULL')
       .getMany();
   }
 
   public async getAllActiveAuctionLotsWithDates(): Promise<AuctionLot[]> {
     return await this.getAuctionLotBaseQuery()
-      .where('al.winner IS NULL')
       .leftJoinAndSelect('al.auction', 'auction_id')
+      .where('al.winner IS NULL')
       .getMany();
   }
 

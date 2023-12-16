@@ -1,3 +1,4 @@
+import { Exclude, Transform } from 'class-transformer';
 import { Auction } from 'src/auction/entities/auction.entity';
 import { Product } from 'src/product/entities/product.entity';
 import { ColumnNumericTransformer } from 'src/shared/transformers/column-numeric.transformer';
@@ -44,6 +45,7 @@ export class AuctionLot {
   })
   initialPrice: number;
 
+  @Exclude()
   @Column({
     name: 'discarded_lot_fee',
     type: 'decimal',
@@ -58,6 +60,7 @@ export class AuctionLot {
   @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
   product: Product;
 
+  @Transform(({ value }) => value.username)
   @ManyToOne(() => User, { eager: false, nullable: true })
   @JoinColumn({ name: 'lot_winner', referencedColumnName: 'id' })
   winner: User;

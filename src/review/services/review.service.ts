@@ -49,7 +49,7 @@ export class ReviewService {
       .findOneBy(AuctionLotView, {
         manufacturer: createReviewDTO.manufacturerId,
       })
-      .then((entity) => {
+      .then((entity: AuctionLotView) => {
         if (!entity) {
           throw new IllegalArgumentException(
             `Manufacturer with id: ${createReviewDTO.manufacturerId} did not create any products`,
@@ -60,6 +60,9 @@ export class ReviewService {
             `User: ${creator.username} can not create review for this manufacturer`,
           );
         }
+      })
+      .catch((error) => {
+        throw new IllegalStateException(error.message);
       });
     return await this.reviewRepository.save(
       new Review({ ...createReviewDTO, manufacturer, reviewer: creator }),

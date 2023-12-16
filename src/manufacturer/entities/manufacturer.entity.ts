@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { ColumnNumericTransformer } from 'src/shared/transformers/column-numeric.transformer';
 import { User } from 'src/user/entities/user.entity';
 import {
@@ -31,9 +32,6 @@ export class Manufacturer {
 
   @Column({ name: 'products-sold', nullable: true, type: 'int', default: 0 })
   productsSold: number;
-
-  //   @Column({ name: 'active_until', type: 'datetime' })
-  //   activeUntil: Date;
 
   @OneToOne(() => User, { eager: false, onDelete: 'CASCADE', nullable: false })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })

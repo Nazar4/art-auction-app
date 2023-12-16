@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   Logger,
@@ -8,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -15,8 +17,11 @@ import { AuctionLotService } from '../services/auction-lot.service';
 import { AuctionLot } from '../entities/auction-lot.entity';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { CreateAuctionLotDTO } from '../dtos/create-auction-lot.dto';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
 
 @Controller('auction-lots')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuctionLotController {
   private readonly logger = new Logger(AuctionLotController.name);
   constructor(private readonly auctionLotService: AuctionLotService) {}
@@ -43,7 +48,8 @@ export class AuctionLotController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  @UseGuards(AuthGuardJwt)
+  @UseGuards(AuthGuardJwt, RolesGuard)
+  @Roles('manufacturer')
   public async createAuctionLot(
     @Body()
     createAuctionLotDTO: CreateAuctionLotDTO,

@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
 import { ColumnNumericTransformer } from 'src/shared/transformers/column-numeric.transformer';
 import {
@@ -40,6 +41,7 @@ export class Product {
   @Column({ name: 'percentage_fee', type: 'decimal', precision: 10, scale: 2 })
   percentageFee: number;
 
+  @Exclude()
   @Column({ type: 'blob', name: 'photo_file_path', nullable: true })
   photoFilePath: Buffer;
 

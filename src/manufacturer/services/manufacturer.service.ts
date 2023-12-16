@@ -49,7 +49,7 @@ export class ManufacturerService {
     id: number,
   ): Promise<Manufacturer | undefined> {
     return await this.getManufacturerBaseQuery()
-      .innerJoinAndSelect('man.user', 'user')
+      .leftJoinAndSelect('man.user', 'user')
       .where('man.user_id = :id', { id })
       .getOne();
   }

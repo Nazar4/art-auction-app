@@ -10,6 +10,7 @@ import {
 import { Role } from '../../role/entities/role.entity';
 import { Address } from '../../address/entities/address.entity';
 import { MoneyAccount } from 'src/money-account/entities/money-account.entity';
+import { Exclude, Expose, Transform } from 'class-transformer';
 
 @Entity({ name: 'user' })
 @Unique(['address', 'moneyAccount'])
@@ -33,15 +34,18 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Exclude()
   @Column()
   password: string;
 
   @Column({ name: 'phone_number', unique: true })
   phoneNumber: string;
 
+  @Exclude()
   @Column({ default: true })
   enabled: boolean;
 
+  @Transform(({ value }) => value.name)
   @ManyToOne(() => Role, { eager: true, nullable: false })
   @JoinColumn({ name: 'role_id', referencedColumnName: 'id' })
   role: Role;
@@ -61,4 +65,9 @@ export class User {
   })
   @JoinColumn({ name: 'money_account_id', referencedColumnName: 'id' })
   moneyAccount: MoneyAccount;
+
+  @Expose()
+  get fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
 }
