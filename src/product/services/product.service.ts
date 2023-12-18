@@ -1,14 +1,11 @@
+import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from '../entities/product.entity';
-import { Repository, SelectQueryBuilder, QueryRunner } from 'typeorm';
-import { CreateProductDTO } from '../dtos/create-product.dto';
-import { Constants } from 'src/shared/type-utils/global.constants';
-import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
-import { groupBy } from 'rxjs';
+import { ManufacturerService } from 'src/manufacturer/services/manufacturer.service';
 import { SortType } from 'src/shared/type-utils/global.types';
 import { User } from 'src/user/entities/user.entity';
-import { ManufacturerService } from 'src/manufacturer/services/manufacturer.service';
-import { NotFoundException } from '@nestjs/common';
+import { Repository, SelectQueryBuilder } from 'typeorm';
+import { CreateProductDTO } from '../dtos/create-product.dto';
+import { Product } from '../entities/product.entity';
 export class ProductService {
   constructor(
     @InjectRepository(Product)
@@ -63,9 +60,7 @@ export class ProductService {
       creator: manufacturer,
       photoFilePath: pictureBuffer,
     });
-    product.percentageFee = this.calculatePercentageFeeForProductPrice(
-      product.price,
-    );
+    product.calculatePercentageFeeForProductPrice();
     await this.productRepository.save(product);
     return product.percentageFee;
   }
@@ -77,20 +72,5 @@ export class ProductService {
     const product = await this.productRepository.findOneByOrFail({ id });
     product.photoFilePath = fileBuffer;
     await this.productRepository.save(product);
-  }
-
-  private calculatePercentageFeeForProductPrice(productPrice: number): number {
-    const percentageFee = productPrice * 0.01;
-
-    const isBelowLowerBound = percentageFee < Constants.LOWER_BOUND;
-    const isAboveUpperBound = percentageFee > Constants.UPPER_BOUND;
-
-    if (isBelowLowerBound) {
-      return percentageFee;
-    } else if (isAboveUpperBound) {
-      return 10000;
-    } else {
-      return Constants.LOWER_BOUND;
-    }
   }
 }

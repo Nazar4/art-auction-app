@@ -57,7 +57,7 @@ export class AuctionLotController {
     try {
       return await this.auctionLotService.createAuctionLot(createAuctionLotDTO);
     } catch (error) {
-      this.logger.warn(`/auction-lots post, Message: ${error.message}`);
+      this.logger.warn(`/auction-lots POST, Message: ${error.message}`);
       throw new BadRequestException(error.message);
     }
   }

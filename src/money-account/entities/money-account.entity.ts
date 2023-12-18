@@ -1,3 +1,4 @@
+import { Exclude, Expose } from 'class-transformer';
 import { ColumnNumericTransformer } from 'src/shared/transformers/column-numeric.transformer';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -16,6 +17,7 @@ export class MoneyAccount {
     precision: 10,
     scale: 2,
     nullable: true,
+    default: 0,
   })
   balance: number;
 
@@ -26,6 +28,7 @@ export class MoneyAccount {
     precision: 10,
     scale: 2,
     nullable: true,
+    default: 0,
   })
   balanceInUse: number;
 
@@ -33,5 +36,11 @@ export class MoneyAccount {
   name: string;
 
   @Column({ default: false })
+  @Exclude()
   blocked: boolean;
+
+  @Expose()
+  get availableBalance(): number {
+    return this.balance - this.balanceInUse;
+  }
 }

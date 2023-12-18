@@ -57,7 +57,7 @@ export class AddressController {
 
     if (!address) {
       this.logger.log(
-        `/addresses/${id} patch, Message: Could not find address`,
+        `/addresses/${id} PATCH, Message: Could not find address`,
       );
       throw new NotFoundException();
     }
@@ -74,7 +74,7 @@ export class AddressController {
     try {
       await this.addressService.deleteAddress(id);
     } catch (error) {
-      this.logger.log(`/addresses/${id} delete, Message: ${error.message}`);
+      this.logger.log(`/addresses/${id} DELETE, Message: ${error.message}`);
       throw new NotFoundException();
     }
   }

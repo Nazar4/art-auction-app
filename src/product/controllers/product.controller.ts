@@ -1,10 +1,12 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   FileTypeValidator,
   Get,
   Logger,
   MaxFileSizeValidator,
+  NotFoundException,
   Param,
   ParseFilePipe,
   ParseIntPipe,
@@ -34,6 +36,7 @@ export class ProductController {
 
   //need to add pagination and find all and only if man id given then filter
   @Get()
+  @UseInterceptors(ClassSerializerInterceptor)
   public async getProductsByManufacturerId(
     @Query('manufacturerId', ParseIntPipe) id: number,
   ): Promise<Product[]> {
@@ -41,10 +44,16 @@ export class ProductController {
   }
 
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   public async getProductById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Product> {
-    return await this.productService.getProductById(id);
+    try {
+      return await this.productService.getProductById(id);
+    } catch (error) {
+      this.logger.log(`/products/${id} GET, Message: ${error.message}`);
+      throw new NotFoundException();
+    }
   }
 
   @Post()

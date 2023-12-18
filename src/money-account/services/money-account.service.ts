@@ -1,8 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoneyAccount } from '../entities/money-account.entity';
 import { QueryRunner, Repository } from 'typeorm';
 import { BalanceInUseGreaterThanBalanceException } from '../errors/balance-in-use-greater-than-balance.error';
+import { User } from 'src/user/entities/user.entity';
+import { IllegalStateException } from 'src/shared/exceptions/IllegalStateException';
 
 @Injectable()
 export class MoneyAccountService {
@@ -16,8 +18,6 @@ export class MoneyAccountService {
   public async createInitialMoneyAccount(name: string) {
     return await this.moneyAccountRepository.save(
       new MoneyAccount({
-        balance: 0.0,
-        balanceInUse: 0.0,
         name: this.generateUniqueName(name),
       }),
     );
@@ -52,21 +52,29 @@ export class MoneyAccountService {
 
   public async getMoneyAccountById(
     id: number,
-  ): Promise<MoneyAccount | undefined> {
-    this.logger.debug(`getMoneyAccountById called with ${id}`);
-    return await this.moneyAccountRepository.findOneBy({ id });
+    user: User,
+  ): Promise<MoneyAccount> {
+    if (!this.isUserOwnerOfAnMoneyAccount(user, id)) {
+      throw new IllegalStateException(
+        `User: ${user.id} is not an owner of money account: ${id}`,
+      );
+    }
+    return await this.moneyAccountRepository.findOneByOrFail({ id });
   }
 
   public async getMoneyAccountByName(
     name: string,
-  ): Promise<MoneyAccount | undefined> {
-    const moneyAccount = await this.moneyAccountRepository.findOneBy({ name });
-    return moneyAccount;
+    user: User,
+  ): Promise<MoneyAccount> {
+    if (!this.isUserOwnerOfAnMoneyAccount(user, undefined, name)) {
+      throw new IllegalStateException(
+        `User: ${user.id} is not an owner of this money account: ${name}`,
+      );
+    }
+    return await this.moneyAccountRepository.findOneByOrFail({ name });
   }
 
-  public async blockMoneyAccountById(
-    id: number,
-  ): Promise<MoneyAccount | undefined> {
+  public async blockMoneyAccountById(id: number): Promise<MoneyAccount> {
     const moneyAccount = await this.moneyAccountRepository.findOneByOrFail({
       id,
     });
@@ -79,7 +87,13 @@ export class MoneyAccountService {
   public async updateMoneyAccountNameById(
     id: number,
     name: string,
-  ): Promise<MoneyAccount | undefined> {
+    user: User,
+  ): Promise<MoneyAccount> {
+    if (!this.isUserOwnerOfAnMoneyAccount(user, id)) {
+      throw new IllegalStateException(
+        `User: ${user.id} is not an owner of this money account: ${id}`,
+      );
+    }
     const moneyAccount = await this.moneyAccountRepository.findOneByOrFail({
       id,
     });
@@ -87,6 +101,17 @@ export class MoneyAccountService {
       ...moneyAccount,
       name,
     });
+  }
+
+  private isUserOwnerOfAnMoneyAccount(
+    user: User,
+    id?: number,
+    name: string = '',
+  ): boolean {
+    if (id) {
+      return user.moneyAccount?.id === id;
+    }
+    return user.moneyAccount?.name === name;
   }
 
   private generateUniqueName(name: string): string {

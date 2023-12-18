@@ -71,7 +71,7 @@ export class ReviewController {
     try {
       await this.reviewService.deleteReview(id);
     } catch (error) {
-      this.logger.log(`/reviews/${id} delete, Message: ${error.message}`);
+      this.logger.log(`/reviews/${id} DELETE, Message: ${error.message}`);
       throw new NotFoundException();
     }
   }

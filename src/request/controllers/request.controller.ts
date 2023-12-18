@@ -44,7 +44,7 @@ export class RequestController {
     try {
       return await this.requestService.createRequest(user, createRequestDTO);
     } catch (error) {
-      this.logger.warn(`/requests post, Message: ${error.message}`);
+      this.logger.warn(`/requests POST, Message: ${error.message}`);
       throw new BadRequestException(error.message);
     }
   }
@@ -65,7 +65,7 @@ export class RequestController {
     try {
       return await this.requestService.updateRequest(id, sum, user);
     } catch (error) {
-      this.logger.log(`/requests/${id} patch, Message: ${error.message}`);
+      this.logger.log(`/requests/${id} PATCH, Message: ${error.message}`);
       if (error instanceof EntityNotFoundError) {
         throw new NotFoundException();
       }
@@ -85,7 +85,7 @@ export class RequestController {
     try {
       await this.requestService.removeRequest(user, id);
     } catch (error) {
-      this.logger.warn(`/requests/${id} delete, Message: ${error.message}`);
+      this.logger.warn(`/requests/${id} DELETE, Message: ${error.message}`);
       throw error;
     }
   }
