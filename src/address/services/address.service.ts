@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository } from 'typeorm';
+import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateAddressDTO } from '../dtos/create-address.dto';
 import { Address } from '../entities/address.entity';
 import { UpdateAddressDTO } from '../dtos/update-address.dto';
@@ -14,8 +14,14 @@ export class AddressService {
     private readonly addressRepository: Repository<Address>,
   ) {}
 
-  public async getAddressById(id: number): Promise<Address | undefined> {
-    return await this.addressRepository.findOneBy({ id });
+  private getAddressBaseQuery(): SelectQueryBuilder<Address> {
+    return this.addressRepository.createQueryBuilder('ad');
+  }
+
+  public async getAddressById(id: number): Promise<Address> {
+    return await this.getAddressBaseQuery()
+      .where('ad.id = :id', { id })
+      .getOneOrFail();
   }
 
   public async createAddress(address: CreateAddressDTO): Promise<Address> {
@@ -24,8 +30,9 @@ export class AddressService {
 
   public async updateAddress(
     inputAddress: UpdateAddressDTO,
-    originalAddress: Address,
+    originalAddressId: number,
   ): Promise<Address> {
+    const originalAddress = await this.getAddressById(originalAddressId);
     return await this.addressRepository.save(
       new Address({
         ...originalAddress,
@@ -35,7 +42,7 @@ export class AddressService {
   }
 
   public async deleteAddress(id: number): Promise<DeleteResult> {
-    await this.addressRepository.findOneByOrFail({ id });
+    await this.getAddressById(id);
     return await this.addressRepository
       .createQueryBuilder('address')
       .delete()

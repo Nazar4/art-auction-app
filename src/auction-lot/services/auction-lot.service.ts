@@ -29,16 +29,11 @@ export class AuctionLotService {
     await this.auctionLotRepository.save(auctiolLot);
   }
 
-  public async getAuctionLotById(
-    id: number,
-    queryRunner?: QueryRunner,
-  ): Promise<AuctionLot | undefined> {
-    if (queryRunner) {
-      return await queryRunner.manager.findOneByOrFail(AuctionLot, { id });
-    }
+  public async getAuctionLotById(id: number): Promise<AuctionLot> {
     return await this.getAuctionLotBaseQuery()
       .leftJoinAndSelect('al.winner', 'winner')
       .leftJoinAndSelect('al.product', 'product')
+      .leftJoinAndSelect('al.auction', 'auction')
       .where('al.id = :id', { id })
       .getOneOrFail();
   }
@@ -52,19 +47,18 @@ export class AuctionLotService {
       .getOne();
   }
 
-  public async getAllActiveAuctionLots(): Promise<AuctionLot[]> {
-    return await this.getAuctionLotBaseQuery()
-      .select(['al.id'])
+  public async getAllActiveAuctionLots(
+    withDates: boolean,
+  ): Promise<AuctionLot[]> {
+    const query = this.getAuctionLotBaseQuery()
       .leftJoinAndSelect('al.product', 'product')
-      .where('al.winner IS NULL')
-      .getMany();
-  }
+      .where('al.winner IS NULL');
 
-  public async getAllActiveAuctionLotsWithDates(): Promise<AuctionLot[]> {
-    return await this.getAuctionLotBaseQuery()
-      .leftJoinAndSelect('al.auction', 'auction_id')
-      .where('al.winner IS NULL')
-      .getMany();
+    if (withDates) {
+      query.leftJoinAndSelect('al.auction', 'auction');
+    }
+
+    return query.getMany();
   }
 
   public async createAuctionLot({

@@ -15,15 +15,15 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Review } from '../entities/review.entity';
-import { ReviewService } from '../services/review.service';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
-import { CreateReviewDTO } from '../dtos/create-review.dto';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
-import { User } from 'src/user/entities/user.entity';
 import { Constants } from 'src/shared/type-utils/global.constants';
+import { User } from 'src/user/entities/user.entity';
+import { CreateReviewDTO } from '../dtos/create-review.dto';
+import { Review } from '../entities/review.entity';
+import { ReviewService } from '../services/review.service';
 
 @Controller('reviews')
 export class ReviewController {
@@ -72,8 +72,6 @@ export class ReviewController {
       throw new ForbiddenException();
     }
   }
-
-  //patch not sure
 
   @Delete(':id')
   @HttpCode(204)

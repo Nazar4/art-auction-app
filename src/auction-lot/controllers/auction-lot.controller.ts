@@ -5,9 +5,12 @@ import {
   Controller,
   Get,
   Logger,
+  NotFoundException,
   Param,
+  ParseBoolPipe,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -20,6 +23,7 @@ import { CreateAuctionLotDTO } from '../dtos/create-auction-lot.dto';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
 import { Constants } from 'src/shared/type-utils/global.constants';
+import { ParseOptionalBoolPipe } from 'src/shared/pipes/parse-optional-boolean.pipe';
 
 @Controller('auction-lots')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -29,22 +33,24 @@ export class AuctionLotController {
 
   @Get()
   @UseGuards(AuthGuardJwt)
-  public async getAllActiveAuctionLots(): Promise<AuctionLot[]> {
-    return await this.auctionLotService.getAllActiveAuctionLots();
-  }
-
-  @Get('/with-dates')
-  @UseGuards(AuthGuardJwt)
-  public async getAllActiveAuctionLotsWithDates(): Promise<AuctionLot[]> {
-    return await this.auctionLotService.getAllActiveAuctionLotsWithDates();
+  public getAllActiveAuctionLots(
+    @Query('with-dates', ParseOptionalBoolPipe) withDates: boolean,
+  ): Promise<AuctionLot[]> {
+    return this.auctionLotService.getAllActiveAuctionLots(withDates);
   }
 
   @Get(':id')
   @UseGuards(AuthGuardJwt)
-  public async getAuctionLotById(
+  public getAuctionLotById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<AuctionLot> {
-    return await this.auctionLotService.getAuctionLotById(id, null);
+    try {
+      4;
+      return this.auctionLotService.getAuctionLotById(id);
+    } catch (error) {
+      this.logger.warn(`/auction-lots/${id} GET, Message: ${error.message}`);
+      throw new NotFoundException();
+    }
   }
 
   @Post()

@@ -1,13 +1,9 @@
+import { Exclude } from 'class-transformer';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
-// enum RoleEnum {
-//   USER = 1, //if not specified start with 0
-//   MANUFACTURER,
-//   ADMIN,
-// }
 
 @Entity()
 export class Role {
+  @Exclude()
   @PrimaryGeneratedColumn()
   id: number;
 

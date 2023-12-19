@@ -31,16 +31,21 @@ export class AddressController {
 
   @Get(':id')
   @UseGuards(AuthGuardJwt)
-  // @UsePipes(new ValidationPipe({transform: true}))
   public async getAddressById(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<Address | undefined> {
-    return await this.addressService.getAddressById(id);
+  ): Promise<Address> {
+    try {
+      return await this.addressService.getAddressById(id);
+    } catch (error) {
+      this.logger.warn(`/addresses/${id} GET, Message: ${error.message}`);
+      throw new NotFoundException();
+    }
   }
 
   @Post()
   @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuardJwt)
+  @HttpCode(201)
   public async createAddress(
     @Body() address: CreateAddressDTO,
   ): Promise<Address> {
@@ -48,21 +53,18 @@ export class AddressController {
   }
 
   @Patch(':id')
+  @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuardJwt)
   public async udpateAddress(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: UpdateAddressDTO,
   ): Promise<Address> {
-    const address = await this.addressService.getAddressById(id);
-
-    if (!address) {
-      this.logger.log(
-        `/addresses/${id} PATCH, Message: Could not find address`,
-      );
+    try {
+      return await this.addressService.updateAddress(input, id);
+    } catch (error) {
+      this.logger.log(`/addresses/${id} PATCH, Message: ${error.message}`);
       throw new NotFoundException();
     }
-
-    return await this.addressService.updateAddress(input, address);
   }
 
   @Delete(':id')

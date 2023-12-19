@@ -1,18 +1,12 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Review } from '../entities/review.entity';
-import {
-  DataSource,
-  DeleteResult,
-  Repository,
-  SelectQueryBuilder,
-} from 'typeorm';
-import { CreateReviewDTO } from '../dtos/create-review.dto';
-import { ManufacturerService } from 'src/manufacturer/services/manufacturer.service';
-import { User } from 'src/user/entities/user.entity';
 import { AuctionLotView } from 'src/auction-lot/entities/auction-lot.view.entity';
-import { IllegalStateException } from 'src/shared/exceptions/IllegalStateException';
+import { ManufacturerService } from 'src/manufacturer/services/manufacturer.service';
 import { IllegalArgumentException } from 'src/shared/exceptions/IllegalArgumentException';
-import { NotFoundException } from '@nestjs/common';
+import { IllegalStateException } from 'src/shared/exceptions/IllegalStateException';
+import { User } from 'src/user/entities/user.entity';
+import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
+import { CreateReviewDTO } from '../dtos/create-review.dto';
+import { Review } from '../entities/review.entity';
 
 export class ReviewService {
   constructor(
