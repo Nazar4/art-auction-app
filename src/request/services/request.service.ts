@@ -7,6 +7,7 @@ import { User } from 'src/user/entities/user.entity';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateRequestDTO } from '../dtos/create-request.dto';
 import { Request } from '../entities/request.entity';
+import { IllegalAccessException } from 'src/shared/exceptions/IllegalAccessException';
 
 export class RequestService {
   private readonly logger = new Logger(RequestService.name);
@@ -21,6 +22,17 @@ export class RequestService {
 
   private getRequestBaseQuery(): SelectQueryBuilder<Request> {
     return this.requestRepository.createQueryBuilder('req');
+  }
+
+  public async getRequestById(
+    id: number,
+    { id: userId }: User,
+  ): Promise<Request> {
+    return await this.getRequestBaseQuery()
+      .where('req.id = :id', { id })
+      .andWhere('req.user_id = :userId', { userId })
+      .leftJoinAndSelect('req.user', 'user')
+      .getOneOrFail();
   }
 
   public async createRequest(
@@ -41,7 +53,7 @@ export class RequestService {
     }
 
     if (this.userHasRequestForLot(user, auctionLotId)) {
-      throw new Error('You can not create more than 1 request');
+      throw new IllegalStateException('You can not create more than 1 request');
     }
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -55,10 +67,6 @@ export class RequestService {
         sum,
         queryRunner,
       );
-      // auctionLot = await this.auctionLotService.getAuctionLotById(
-      //   auctionLotId,
-      //   queryRunner,
-      // );
 
       await queryRunner.commitTransaction();
     } catch (err) {
@@ -186,4 +194,9 @@ export class RequestService {
       .andWhere('req.sum = :sum', { sum })
       .getOneOrFail();
   }
+
+  // private async isUserOwnerOfAnRequest(
+  //   user: User,
+  //   id: number,
+  // ): Promise<boolean> {}
 }

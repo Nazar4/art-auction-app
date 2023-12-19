@@ -12,6 +12,7 @@ import { User } from 'src/user/entities/user.entity';
 import { AuctionLotView } from 'src/auction-lot/entities/auction-lot.view.entity';
 import { IllegalStateException } from 'src/shared/exceptions/IllegalStateException';
 import { IllegalArgumentException } from 'src/shared/exceptions/IllegalArgumentException';
+import { NotFoundException } from '@nestjs/common';
 
 export class ReviewService {
   constructor(
@@ -25,16 +26,23 @@ export class ReviewService {
     return this.reviewRepository.createQueryBuilder('r');
   }
 
-  public async getReviewById(id: number): Promise<Review | undefined> {
-    return await this.reviewRepository.findOneBy({ id });
+  public async getReviewById(id: number): Promise<Review> {
+    return await this.getReviewBaseQuery()
+      .where('r.id = :id', { id })
+      .leftJoinAndSelect('r.reviewer', 'reviewer')
+      .getOneOrFail();
   }
 
-  public async deleteReview(id: number): Promise<DeleteResult> {
-    await this.reviewRepository.findOneByOrFail({ id });
-    return await this.reviewRepository
-      .createQueryBuilder('review')
-      .delete()
+  public async deleteReview(id: number, { id: userId }: User): Promise<void> {
+    await this.getReviewBaseQuery()
       .where('id = :id', { id })
+      .andWhere('user_id = :userId', { userId })
+      .getOneOrFail();
+
+    await this.getReviewBaseQuery()
+      .delete() // does not work properly with aliases, need to make raw query
+      .where('id = :id', { id })
+      .andWhere('user_id = :userId', { userId })
       .execute();
   }
 

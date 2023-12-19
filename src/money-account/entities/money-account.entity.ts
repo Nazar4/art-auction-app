@@ -35,8 +35,8 @@ export class MoneyAccount {
   @Column()
   name: string;
 
-  @Column({ default: false })
   @Exclude()
+  @Column({ default: false })
   blocked: boolean;
 
   @Expose()

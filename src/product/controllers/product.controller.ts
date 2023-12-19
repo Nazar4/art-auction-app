@@ -58,7 +58,7 @@ export class ProductController {
 
   @Post()
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('manufacturer')
+  @Roles(Constants.MANUFACTURER_ROLE)
   @UseInterceptors(FileInterceptor('picture'))
   public async createProduct(
     @Body(new ParseJSONPipe('createProductDTO'))
@@ -83,7 +83,7 @@ export class ProductController {
 
   // @Patch(':id')
   // @UseGuards(AuthGuardJwt, RolesGuard)
-  // @Roles('manufacturer')
+  // @Roles(Constants.MANUFACTURER_ROLE)
   // @UseInterceptors(FileInterceptor('picture'))
   // public async uploadPhotoForProduct(
   //   @Param('id', ParseIntPipe) id: number,

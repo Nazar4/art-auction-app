@@ -13,7 +13,7 @@ import {
 
 @Entity({ name: 'review' })
 @Unique(['reviewer', 'manufacturer'])
-// @Index(['reviewer', 'manufacturer'], { unique: true })
+@Index(['reviewer', 'manufacturer'], { unique: true })
 export class Review {
   constructor(partial?: Partial<Review>) {
     Object.assign(this, partial);
@@ -34,7 +34,7 @@ export class Review {
   @Column({ name: 'review_text', type: 'text' })
   reviewText: string;
 
-  @ManyToOne(() => User, { eager: true, nullable: false })
+  @ManyToOne(() => User, { eager: false, nullable: false })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   reviewer: User;
 

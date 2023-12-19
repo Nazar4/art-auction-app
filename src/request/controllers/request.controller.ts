@@ -1,8 +1,10 @@
 import {
   BadRequestException,
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Logger,
   NotFoundException,
@@ -12,6 +14,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -25,6 +28,7 @@ import { Request } from '../entities/request.entity';
 import { RequestService } from '../services/request.service';
 import { ParsePositiveIntPipe } from 'src/shared/pipes/parse-positive-int.pipe';
 import { EntityNotFoundError } from 'typeorm';
+import { Constants } from 'src/shared/type-utils/global.constants';
 
 @Controller('requests')
 export class RequestController {
@@ -32,10 +36,27 @@ export class RequestController {
 
   constructor(private readonly requestService: RequestService) {}
 
+  @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseGuards(AuthGuardJwt, RolesGuard)
+  @Roles(Constants.USER_ROLE)
+  public async getRequestById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User,
+  ): Promise<Request> {
+    try {
+      return await this.requestService.getRequestById(id, user);
+    } catch (error) {
+      this.logger.warn(`/requests/${id} GET, Message: ${error.message}`);
+      throw new NotFoundException();
+    }
+  }
+
   @Post()
+  @UseInterceptors(ClassSerializerInterceptor)
   @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('user')
+  @Roles(Constants.USER_ROLE)
   public async createRequest(
     @Body()
     createRequestDTO: CreateRequestDTO,
@@ -52,7 +73,7 @@ export class RequestController {
   @Patch(':id')
   @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('user')
+  @Roles(Constants.USER_ROLE)
   @HttpCode(202)
   public async updateRequest(
     @Param('id', ParseIntPipe)
@@ -76,7 +97,7 @@ export class RequestController {
   @Delete(':id')
   @HttpCode(204)
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('user')
+  @Roles(Constants.USER_ROLE)
   public async removeRequest(
     @Param('id', ParseIntPipe)
     id: number,

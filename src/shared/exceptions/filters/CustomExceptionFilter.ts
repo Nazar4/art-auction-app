@@ -7,8 +7,9 @@ import {
 import { Response } from 'express';
 import { IllegalStateException } from '../IllegalStateException';
 import { IllegalArgumentException } from '../IllegalArgumentException';
+import { IllegalAccessException } from '../IllegalAccessException';
 
-@Catch(IllegalStateException, IllegalArgumentException) //can put multiple exceptions here
+@Catch(IllegalStateException, IllegalArgumentException, IllegalAccessException) //can put multiple exceptions here
 export class CustomExceptionFilter implements ExceptionFilter {
   catch(exception: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();

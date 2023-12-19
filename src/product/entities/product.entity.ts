@@ -39,8 +39,8 @@ export class Product {
   })
   price: number;
 
-  @Column({ name: 'percentage_fee', type: 'decimal', precision: 10, scale: 2 })
   @Exclude()
+  @Column({ name: 'percentage_fee', type: 'decimal', precision: 10, scale: 2 })
   percentageFee: number;
 
   @Exclude()

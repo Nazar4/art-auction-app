@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   ForbiddenException,
@@ -12,6 +13,7 @@ import {
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Review } from '../entities/review.entity';
 import { ReviewService } from '../services/review.service';
@@ -21,6 +23,7 @@ import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
 import { CreateReviewDTO } from '../dtos/create-review.dto';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { Constants } from 'src/shared/type-utils/global.constants';
 
 @Controller('reviews')
 export class ReviewController {
@@ -33,20 +36,31 @@ export class ReviewController {
   public async getReviewsByManufacturerId(
     @Query('manufacturerId', ParseIntPipe) id: number,
   ): Promise<Review[]> {
-    return await this.reviewService.getAllReviewsByManufacturerId(id);
+    try {
+      return await this.reviewService.getAllReviewsByManufacturerId(id);
+    } catch (error) {
+      this.logger.warn(`/reviews?id=${id} GET, Message: ${error.message}`);
+      throw new NotFoundException();
+    }
   }
 
   @Get(':id')
+  @UseInterceptors(ClassSerializerInterceptor)
   public async getReveiwById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Review> {
-    return await this.reviewService.getReviewById(id);
+    try {
+      return await this.reviewService.getReviewById(id);
+    } catch (error) {
+      this.logger.warn(`/reviews/${id} GET, Message: ${error.message}`);
+      throw new NotFoundException();
+    }
   }
 
   @Post()
   @HttpCode(201)
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('user')
+  @Roles(Constants.USER_ROLE)
   public async createReveiw(
     @Body() review: CreateReviewDTO,
     @CurrentUser() creator: User,
@@ -64,12 +78,13 @@ export class ReviewController {
   @Delete(':id')
   @HttpCode(204)
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('user')
+  @Roles(Constants.USER_ROLE)
   public async deleteReveiw(
     @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User,
   ): Promise<void> {
     try {
-      await this.reviewService.deleteReview(id);
+      await this.reviewService.deleteReview(id, user);
     } catch (error) {
       this.logger.log(`/reviews/${id} DELETE, Message: ${error.message}`);
       throw new NotFoundException();

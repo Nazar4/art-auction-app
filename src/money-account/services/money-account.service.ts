@@ -5,6 +5,7 @@ import { QueryRunner, Repository } from 'typeorm';
 import { BalanceInUseGreaterThanBalanceException } from '../errors/balance-in-use-greater-than-balance.error';
 import { User } from 'src/user/entities/user.entity';
 import { IllegalStateException } from 'src/shared/exceptions/IllegalStateException';
+import { IllegalAccessException } from 'src/shared/exceptions/IllegalAccessException';
 
 @Injectable()
 export class MoneyAccountService {
@@ -55,7 +56,7 @@ export class MoneyAccountService {
     user: User,
   ): Promise<MoneyAccount> {
     if (!this.isUserOwnerOfAnMoneyAccount(user, id)) {
-      throw new IllegalStateException(
+      throw new IllegalAccessException(
         `User: ${user.id} is not an owner of money account: ${id}`,
       );
     }

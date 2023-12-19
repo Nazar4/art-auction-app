@@ -21,6 +21,7 @@ import { IllegalStateException } from 'src/shared/exceptions/IllegalStateExcepti
 import { User } from 'src/user/entities/user.entity';
 import { MoneyAccount } from '../entities/money-account.entity';
 import { MoneyAccountService } from '../services/money-account.service';
+import { Constants } from 'src/shared/type-utils/global.constants';
 
 @Controller('money-accounts')
 export class MoneyAccountController {
@@ -31,7 +32,7 @@ export class MoneyAccountController {
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('user', 'manufacturer')
+  @Roles(Constants.USER_ROLE, Constants.MANUFACTURER_ROLE)
   public async getMoneyAccountById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: User,
@@ -50,7 +51,7 @@ export class MoneyAccountController {
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('user', 'manufacturer')
+  @Roles(Constants.USER_ROLE, Constants.MANUFACTURER_ROLE)
   public async getMoneyAccountByName(
     @Query('name') name: string,
     @CurrentUser() user: User,
@@ -69,7 +70,7 @@ export class MoneyAccountController {
   @Patch(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('user', 'manufacturer')
+  @Roles(Constants.USER_ROLE, Constants.MANUFACTURER_ROLE)
   public async updateMoneyAccountName(
     @Param('id', ParseIntPipe) id: number,
     @Query('name') name: string,
@@ -92,7 +93,7 @@ export class MoneyAccountController {
 
   @Post(':id')
   @UseGuards(AuthGuardJwt, RolesGuard)
-  @Roles('admin')
+  @Roles(Constants.ADMIN_ROLE)
   public async blockMoneyAccount(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<void> {

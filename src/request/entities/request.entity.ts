@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { AuctionLot } from 'src/auction-lot/entities/auction-lot.entity';
 import { ColumnNumericTransformer } from 'src/shared/transformers/column-numeric.transformer';
 import { User } from 'src/user/entities/user.entity';
@@ -26,6 +27,7 @@ export class Request {
   })
   sum: number;
 
+  @Exclude()
   @Column({ default: false })
   success: boolean;
 

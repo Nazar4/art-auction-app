@@ -1,15 +1,15 @@
-import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { User } from 'src/user/entities/user.entity';
-import { AuthGuardJwt } from '../guards/auth-guard.jwt';
+import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthGuardLocal } from '../guards/auth-guard.local';
 import { AuthService } from '../services/auth.service';
-import { CurrentUser } from '../decorators/current-user.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @HttpCode(200)
   @UseGuards(AuthGuardLocal)
   public async login(@CurrentUser() user: User) {
     return {
