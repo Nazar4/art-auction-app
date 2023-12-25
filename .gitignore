@@ -36,4 +36,8 @@ lerna-debug.log*
 user.name
 *.env
 
+# seed data
 src/seeder/seeds/seed.data.ts
+
+# static product images folder
+src/public/assets/product-images

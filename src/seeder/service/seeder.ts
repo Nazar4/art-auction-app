@@ -1,11 +1,11 @@
 import { DataSource, In } from 'typeorm';
-import { MONEY_ACCOUNT_LIST, ROLE_LIST, USER_LIST } from '../seeds/seed.data';
 import { Role } from 'src/role/entities/role.entity';
 import { MoneyAccount } from 'src/money-account/entities/money-account.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Constants } from 'src/shared/type-utils/global.constants';
 import { AuthService } from '../../auth/services/auth.service';
 import { RoleService } from '../../role/services/role.service';
+import { MONEY_ACCOUNT_LIST, ROLE_LIST, USER_LIST } from '../seeds/seed.data';
 
 export async function seedInitialDBData(
   dataSource: DataSource,

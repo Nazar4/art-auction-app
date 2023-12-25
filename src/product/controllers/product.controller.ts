@@ -76,7 +76,7 @@ export class ProductController {
   ): Promise<number> {
     return await this.productService.createProduct(
       createProductDTO,
-      picture.buffer,
+      picture,
       creator,
     );
   }

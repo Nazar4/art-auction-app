@@ -1,5 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { useContainer } from 'class-validator';
+import * as express from 'express';
+import { mkdir } from 'fs/promises';
+import { join } from 'path';
 import { AppModule } from './app.module';
 import { CustomExceptionFilter } from './shared/exceptions/filters/CustomExceptionFilter';
 
@@ -8,6 +11,11 @@ async function bootstrap() {
 
   // app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new CustomExceptionFilter()); //can be also put on top of controller's method
+
+  await mkdir(process.env.FILE_UPLOAD_PATH, { recursive: true });
+
+  app.use('/product-images', express.static(process.env.FILE_UPLOAD_PATH));
+
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   await app.listen(3000);

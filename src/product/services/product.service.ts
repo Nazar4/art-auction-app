@@ -6,6 +6,8 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateProductDTO } from '../dtos/create-product.dto';
 import { Product } from '../entities/product.entity';
+import { join } from 'path';
+import { writeFile } from 'fs/promises';
 export class ProductService {
   constructor(
     @InjectRepository(Product)
@@ -47,7 +49,7 @@ export class ProductService {
 
   public async createProduct(
     createProductDTO: CreateProductDTO,
-    pictureBuffer: Buffer,
+    { originalname, buffer }: Express.Multer.File,
     { id }: User,
   ): Promise<number> {
     const manufacturer =
@@ -55,22 +57,19 @@ export class ProductService {
     if (!manufacturer) {
       throw new NotFoundException(`Manufacturer with id: ${id} was not found`);
     }
+
+    const fileName = `product_${Date.now()}_${originalname}`;
+    const filePath = join(process.env.FILE_UPLOAD_PATH, fileName);
+
+    await writeFile(filePath, buffer);
+
     const product = new Product({
       ...createProductDTO,
       creator: manufacturer,
-      photoFilePath: pictureBuffer,
+      photoFilePath: fileName,
     });
     product.calculatePercentageFeeForProductPrice();
     await this.productRepository.save(product);
     return product.percentageFee;
-  }
-
-  public async uploadProductPictureByProductId(
-    id: number,
-    fileBuffer: Buffer,
-  ): Promise<void> {
-    const product = await this.productRepository.findOneByOrFail({ id });
-    product.photoFilePath = fileBuffer;
-    await this.productRepository.save(product);
   }
 }
