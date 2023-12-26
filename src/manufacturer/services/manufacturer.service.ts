@@ -31,10 +31,10 @@ export class ManufacturerService {
     return this.authService.getTokenForUser(newUser);
   }
 
-  public async getManufacturerById(
-    id: number,
-  ): Promise<Manufacturer | undefined> {
-    return await this.manufacturerRepository.findOneBy({ id });
+  public async getManufacturerById(id: number): Promise<Manufacturer> {
+    return await this.getManufacturerBaseQuery()
+      .where('man.id = :id', { id })
+      .getOneOrFail();
   }
 
   public async getManufacturersSortedByAverageRating(
@@ -45,12 +45,10 @@ export class ManufacturerService {
       .getMany();
   }
 
-  public async getManufacturerByUserId(
-    id: number,
-  ): Promise<Manufacturer | undefined> {
+  public async getManufacturerByUserId(id: number): Promise<Manufacturer> {
     return await this.getManufacturerBaseQuery()
       .leftJoinAndSelect('man.user', 'user')
       .where('man.user_id = :id', { id })
-      .getOne();
+      .getOneOrFail();
   }
 }

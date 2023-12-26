@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  UseFilters,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -18,6 +19,7 @@ import { SortType } from 'src/shared/type-utils/global.types';
 import { CreateUserDto } from 'src/user/dtos/create-user.dto';
 import { Manufacturer } from '../entities/manufacturer.entity';
 import { ManufacturerService } from '../services/manufacturer.service';
+import { EntityNotFoundExceptionFilter } from 'src/shared/exceptions/filters/entity-not-found-exception.filter';
 
 @Controller('manufacturers')
 export class ManufacturerController {
@@ -27,28 +29,29 @@ export class ManufacturerController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  public async registerManufacturer(
+  public registerManufacturer(
     @Body() createUserDto: CreateUserDto,
   ): Promise<string> {
-    return await this.manufacturerService.createManufacturer(createUserDto);
+    return this.manufacturerService.createManufacturer(createUserDto);
   }
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt)
-  public async getManufacturersSortedByAverageRating(
+  public getManufacturersSortedByAverageRating(
     @Query('sortType') sortType: SortType,
   ): Promise<Manufacturer[]> {
-    return await this.manufacturerService.getManufacturersSortedByAverageRating(
+    return this.manufacturerService.getManufacturersSortedByAverageRating(
       sortType,
     );
   }
 
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
-  public async getManufacturerByUserId(
+  @UseFilters(EntityNotFoundExceptionFilter)
+  public getManufacturerByUserId(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Manufacturer> {
-    return await this.manufacturerService.getManufacturerByUserId(id);
+    return this.manufacturerService.getManufacturerByUserId(id);
   }
 }

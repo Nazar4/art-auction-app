@@ -5,12 +5,14 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Logger,
   NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  UseFilters,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -21,6 +23,9 @@ import { UpdateAddressDTO } from '../dtos/update-address.dto';
 import { Address } from '../entities/address.entity';
 import { AddressService } from '../services/address.service';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from 'src/user/entities/user.entity';
+import { EntityNotFoundExceptionFilter } from 'src/shared/exceptions/filters/entity-not-found-exception.filter';
 
 @Controller('addresses')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -31,25 +36,19 @@ export class AddressController {
 
   @Get(':id')
   @UseGuards(AuthGuardJwt)
-  public async getAddressById(
+  @UseFilters(EntityNotFoundExceptionFilter)
+  public getAddressById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Address> {
-    try {
-      return await this.addressService.getAddressById(id);
-    } catch (error) {
-      this.logger.warn(`/addresses/${id} GET, Message: ${error.message}`);
-      throw new NotFoundException();
-    }
+    return this.addressService.getAddressById(id);
   }
 
   @Post()
   @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuardJwt)
-  @HttpCode(201)
-  public async createAddress(
-    @Body() address: CreateAddressDTO,
-  ): Promise<Address> {
-    return await this.addressService.createAddress(address);
+  @HttpCode(HttpStatus.CREATED)
+  public createAddress(@Body() address: CreateAddressDTO): Promise<Address> {
+    return this.addressService.createAddress(address);
   }
 
   @Patch(':id')
@@ -58,9 +57,10 @@ export class AddressController {
   public async udpateAddress(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: UpdateAddressDTO,
+    @CurrentUser() user: User,
   ): Promise<Address> {
     try {
-      return await this.addressService.updateAddress(input, id);
+      return await this.addressService.updateAddress(input, id, user);
     } catch (error) {
       this.logger.log(`/addresses/${id} PATCH, Message: ${error.message}`);
       throw new NotFoundException();
@@ -72,9 +72,10 @@ export class AddressController {
   @UseGuards(AuthGuardJwt)
   public async deleteAddress(
     @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: User,
   ): Promise<void> {
     try {
-      await this.addressService.deleteAddress(id);
+      await this.addressService.deleteAddress(id, user);
     } catch (error) {
       this.logger.log(`/addresses/${id} DELETE, Message: ${error.message}`);
       throw new NotFoundException();

@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 
 export class CreateReviewDTO {
-  @IsDecimal({ decimal_digits: '1,2' }) // precision: 2, scale: 1
   @Min(0.0)
   @Max(5.0)
   public rating!: number;

@@ -8,6 +8,8 @@ import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateRequestDTO } from '../dtos/create-request.dto';
 import { Request } from '../entities/request.entity';
 import { IllegalAccessException } from 'src/shared/exceptions/IllegalAccessException';
+import { AuctionLot } from 'src/auction-lot/entities/auction-lot.entity';
+import { IllegalArgumentException } from 'src/shared/exceptions/IllegalArgumentException';
 
 export class RequestService {
   private readonly logger = new Logger(RequestService.name);
@@ -39,8 +41,15 @@ export class RequestService {
     user: User,
     { sum, auctionLotId }: CreateRequestDTO,
   ): Promise<Request> {
-    const auctionLot =
-      await this.auctionLotService.getAuctionLotByIdWithAuction(auctionLotId);
+    let auctionLot: AuctionLot;
+    try {
+      auctionLot =
+        await this.auctionLotService.getAuctionLotByIdWithAuction(auctionLotId);
+    } catch (error) {
+      throw new IllegalArgumentException(
+        `Invalid auction lot id: ${auctionLotId} parameter provided`,
+      );
+    }
 
     if (
       !auctionLot ||
@@ -52,7 +61,7 @@ export class RequestService {
       );
     }
 
-    if (this.userHasRequestForLot(user, auctionLotId)) {
+    if (await this.userHasRequestForLot(user, auctionLotId)) {
       throw new IllegalStateException('You can not create more than 1 request');
     }
 
@@ -71,7 +80,7 @@ export class RequestService {
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw new Error(err.message);
+      throw new IllegalStateException(err.message);
     } finally {
       await queryRunner.release();
     }
@@ -83,15 +92,24 @@ export class RequestService {
 
     this.auctionLotService.saveAuctionLot(auctionLot);
 
-    const request = await this.requestRepository.save(
-      new Request({ sum, auctionLot, user }),
-    );
-
+    console.log('sum', sum);
+    let request: Request;
+    try {
+      request = await this.requestRepository.save(
+        new Request({ sum, auctionLot, user }),
+      );
+    } catch (error) {
+      this.logger.warn(error.meesage);
+      throw new Error(error.message);
+    }
     return request;
   }
 
-  private async userHasRequestForLot({ id }: User, auctionLotId: number) {
-    this.getRequestBaseQuery()
+  private async userHasRequestForLot(
+    { id }: User,
+    auctionLotId: number,
+  ): Promise<number> {
+    return this.getRequestBaseQuery()
       .where('req.user_id = :id', { id })
       .andWhere('req.auction_lot = :auctionLotId', { auctionLotId })
       .getCount();
@@ -101,7 +119,7 @@ export class RequestService {
     const request = await this.getRequestBaseQuery()
       .where('req.id = :id', { id })
       .leftJoinAndSelect('req.auctionLot', 'auction_lot')
-      .getOne();
+      .getOneOrFail();
 
     const sumDifference = sum - request.sum;
     const wasTopBet = request.auctionLot.topBet === request.sum;
@@ -113,8 +131,8 @@ export class RequestService {
         user.moneyAccount,
         sumDifference,
       );
-    } catch (err) {
-      throw new Error(err.message);
+    } catch (error) {
+      throw new IllegalStateException(error.message);
     }
 
     if (wasTopBet && sumDifference < 0) {
@@ -136,7 +154,7 @@ export class RequestService {
       this.auctionLotService.saveAuctionLot(request.auctionLot);
     }
 
-    this.requestRepository.save(request);
+    await this.requestRepository.save(request);
   }
 
   public async removeRequest(
@@ -171,7 +189,7 @@ export class RequestService {
     request.auctionLot.topBet = topBetRequest ? topBetRequest.sum : null;
     request.auctionLot.requestsNumber--;
 
-    this.auctionLotService.saveAuctionLot(request.auctionLot);
+    await this.auctionLotService.saveAuctionLot(request.auctionLot);
   }
 
   private async findNewTopBetRequest(

@@ -60,7 +60,7 @@ export class AuctionLot {
   @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
   product: Product;
 
-  @Transform(({ value }) => value.username)
+  @Transform(({ value }) => value?.username)
   @ManyToOne(() => User, { eager: false, nullable: true })
   @JoinColumn({ name: 'lot_winner', referencedColumnName: 'id' })
   winner: User;

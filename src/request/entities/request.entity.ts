@@ -14,6 +14,7 @@ import {
 export class Request {
   constructor(partial?: Partial<Request>) {
     Object.assign(this, partial);
+    console.log(this);
   }
 
   @PrimaryGeneratedColumn()

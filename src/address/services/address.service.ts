@@ -1,9 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, Repository, SelectQueryBuilder } from 'typeorm';
+import { IllegalAccessException } from 'src/shared/exceptions/IllegalAccessException';
+import { User } from 'src/user/entities/user.entity';
+import {
+  DeleteResult,
+  EntityManager,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { CreateAddressDTO } from '../dtos/create-address.dto';
-import { Address } from '../entities/address.entity';
 import { UpdateAddressDTO } from '../dtos/update-address.dto';
+import { Address } from '../entities/address.entity';
 
 @Injectable()
 export class AddressService {
@@ -12,6 +19,7 @@ export class AddressService {
   constructor(
     @InjectRepository(Address)
     private readonly addressRepository: Repository<Address>,
+    private readonly entityManager: EntityManager,
   ) {}
 
   private getAddressBaseQuery(): SelectQueryBuilder<Address> {
@@ -31,18 +39,47 @@ export class AddressService {
   public async updateAddress(
     inputAddress: UpdateAddressDTO,
     originalAddressId: number,
+    user: User,
   ): Promise<Address> {
-    const originalAddress = await this.getAddressById(originalAddressId);
+    const userWithAddress = await this.entityManager.findOne(User, {
+      where: { id: user.id },
+      relations: ['address'],
+    });
+
+    if (
+      !userWithAddress ||
+      !userWithAddress.address ||
+      userWithAddress.address.id !== originalAddressId
+    ) {
+      throw new IllegalAccessException(
+        `User: ${user.username} is not owner of the address: ${originalAddressId}`,
+      );
+    }
+
     return await this.addressRepository.save(
       new Address({
-        ...originalAddress,
+        ...userWithAddress.address,
         ...inputAddress,
       }),
     );
   }
 
-  public async deleteAddress(id: number): Promise<DeleteResult> {
-    await this.getAddressById(id);
+  public async deleteAddress(id: number, user: User): Promise<DeleteResult> {
+    const userWithAddress = await this.entityManager.findOne(User, {
+      where: { id: user.id },
+      relations: ['address'],
+    });
+
+    if (
+      !userWithAddress ||
+      !userWithAddress.address ||
+      userWithAddress.address.id !== id
+    ) {
+      throw new IllegalAccessException(
+        `User: ${user.username} is not owner of the address: ${id}`,
+      );
+    }
+
     return await this.addressRepository
       .createQueryBuilder('address')
       .delete()

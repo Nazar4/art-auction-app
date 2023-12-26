@@ -6,14 +6,18 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  HttpStatus,
   Logger,
   NotFoundException,
   Param,
   ParseIntPipe,
   Post,
   Query,
+  UseFilters,
   UseGuards,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -24,6 +28,8 @@ import { User } from 'src/user/entities/user.entity';
 import { CreateReviewDTO } from '../dtos/create-review.dto';
 import { Review } from '../entities/review.entity';
 import { ReviewService } from '../services/review.service';
+import { EntityNotFoundExceptionFilter } from 'src/shared/exceptions/filters/entity-not-found-exception.filter';
+import { IllegalExceptionFilter } from 'src/shared/exceptions/filters/custom-http-exception.filter';
 
 @Controller('reviews')
 export class ReviewController {
@@ -33,59 +39,42 @@ export class ReviewController {
 
   //need to add pagination and find all and only if man id given then filter
   @Get()
-  public async getReviewsByManufacturerId(
+  @UseFilters(EntityNotFoundExceptionFilter)
+  public getReviewsByManufacturerId(
     @Query('manufacturerId', ParseIntPipe) id: number,
   ): Promise<Review[]> {
-    try {
-      return await this.reviewService.getAllReviewsByManufacturerId(id);
-    } catch (error) {
-      this.logger.warn(`/reviews?id=${id} GET, Message: ${error.message}`);
-      throw new NotFoundException();
-    }
+    return this.reviewService.getAllReviewsByManufacturerId(id);
   }
 
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
-  public async getReveiwById(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<Review> {
-    try {
-      return await this.reviewService.getReviewById(id);
-    } catch (error) {
-      this.logger.warn(`/reviews/${id} GET, Message: ${error.message}`);
-      throw new NotFoundException();
-    }
+  @UseFilters(EntityNotFoundExceptionFilter)
+  public getReveiwById(@Param('id', ParseIntPipe) id: number): Promise<Review> {
+    return this.reviewService.getReviewById(id);
   }
 
   @Post()
-  @HttpCode(201)
+  @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.USER_ROLE)
-  public async createReveiw(
+  @UseFilters(IllegalExceptionFilter)
+  @HttpCode(HttpStatus.ACCEPTED)
+  public createReveiw(
     @Body() review: CreateReviewDTO,
     @CurrentUser() creator: User,
-  ): Promise<void> {
-    try {
-      await this.reviewService.createReview(review, creator);
-    } catch (error) {
-      this.logger.log(`/reviews create, Message: ${error.message}`);
-      throw new ForbiddenException();
-    }
+  ): Promise<Review> {
+    return this.reviewService.createReview(review, creator);
   }
 
   @Delete(':id')
-  @HttpCode(204)
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.USER_ROLE)
-  public async deleteReveiw(
+  @UseFilters(EntityNotFoundExceptionFilter)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  public deleteReveiw(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: User,
   ): Promise<void> {
-    try {
-      await this.reviewService.deleteReview(id, user);
-    } catch (error) {
-      this.logger.log(`/reviews/${id} DELETE, Message: ${error.message}`);
-      throw new NotFoundException();
-    }
+    return this.reviewService.deleteReview(id, user);
   }
 }

@@ -3,6 +3,8 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  HttpCode,
+  HttpStatus,
   Logger,
   NotFoundException,
   Param,
@@ -10,6 +12,7 @@ import {
   Patch,
   Post,
   Query,
+  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,10 +21,12 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
 import { IllegalStateException } from 'src/shared/exceptions/IllegalStateException';
+import { Constants } from 'src/shared/type-utils/global.constants';
 import { User } from 'src/user/entities/user.entity';
 import { MoneyAccount } from '../entities/money-account.entity';
 import { MoneyAccountService } from '../services/money-account.service';
-import { Constants } from 'src/shared/type-utils/global.constants';
+import { EntityNotFoundExceptionFilter } from 'src/shared/exceptions/filters/entity-not-found-exception.filter';
+import { IllegalExceptionFilter } from 'src/shared/exceptions/filters/custom-http-exception.filter';
 
 @Controller('money-accounts')
 export class MoneyAccountController {
@@ -33,75 +38,51 @@ export class MoneyAccountController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.USER_ROLE, Constants.MANUFACTURER_ROLE)
-  public async getMoneyAccountById(
+  @UseFilters(IllegalExceptionFilter, EntityNotFoundExceptionFilter)
+  public getMoneyAccountById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: User,
   ): Promise<MoneyAccount> {
-    try {
-      return await this.moneyAccountService.getMoneyAccountById(id, user);
-    } catch (error) {
-      this.logger.log(`/money-accounts/${id} GET, Message: ${error.message}`);
-      if (error instanceof IllegalStateException) {
-        throw new ForbiddenException();
-      }
-      throw new NotFoundException();
-    }
+    return this.moneyAccountService.getMoneyAccountById(id, user);
   }
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.USER_ROLE, Constants.MANUFACTURER_ROLE)
-  public async getMoneyAccountByName(
+  @UseFilters(IllegalExceptionFilter, EntityNotFoundExceptionFilter)
+  public getMoneyAccountByName(
     @Query('name') name: string,
     @CurrentUser() user: User,
   ): Promise<MoneyAccount> {
-    try {
-      return await this.moneyAccountService.getMoneyAccountByName(name, user);
-    } catch (error) {
-      this.logger.log(`/money-accounts GET, Message: ${error.message}`);
-      if (error instanceof IllegalStateException) {
-        throw new ForbiddenException();
-      }
-      throw new NotFoundException();
-    }
+    return this.moneyAccountService.getMoneyAccountByName(name, user);
   }
 
   @Patch(':id')
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.USER_ROLE, Constants.MANUFACTURER_ROLE)
+  @UseFilters(IllegalExceptionFilter, EntityNotFoundExceptionFilter)
   public async updateMoneyAccountName(
     @Param('id', ParseIntPipe) id: number,
     @Query('name') name: string,
     @CurrentUser() user: User,
   ): Promise<MoneyAccount> {
-    try {
-      return await this.moneyAccountService.updateMoneyAccountNameById(
-        id,
-        name,
-        user,
-      );
-    } catch (error) {
-      this.logger.log(`/money-accounts/${id} PATCH, Message: ${error.message}`);
-      if (error instanceof IllegalStateException) {
-        throw new ForbiddenException();
-      }
-      throw new NotFoundException();
-    }
+    return await this.moneyAccountService.updateMoneyAccountNameById(
+      id,
+      name,
+      user,
+    );
   }
 
   @Post(':id')
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.ADMIN_ROLE)
-  public async blockMoneyAccount(
+  @UseFilters(EntityNotFoundExceptionFilter)
+  @HttpCode(HttpStatus.OK)
+  public blockMoneyAccount(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<void> {
-    try {
-      await this.moneyAccountService.blockMoneyAccountById(id);
-    } catch (error) {
-      this.logger.log(`/money-accounts/${id} POST, Message: ${error.message}`);
-      throw new NotFoundException();
-    }
+  ): Promise<MoneyAccount> {
+    return this.moneyAccountService.blockMoneyAccountById(id);
   }
 }

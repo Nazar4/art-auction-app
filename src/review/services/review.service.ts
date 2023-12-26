@@ -7,6 +7,7 @@ import { User } from 'src/user/entities/user.entity';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateReviewDTO } from '../dtos/create-review.dto';
 import { Review } from '../entities/review.entity';
+import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
 
 export class ReviewService {
   constructor(
@@ -28,25 +29,28 @@ export class ReviewService {
   }
 
   public async deleteReview(id: number, { id: userId }: User): Promise<void> {
-    await this.getReviewBaseQuery()
+    const review = await this.getReviewBaseQuery()
       .where('id = :id', { id })
       .andWhere('user_id = :userId', { userId })
       .getOneOrFail();
 
-    await this.getReviewBaseQuery()
-      .delete() // does not work properly with aliases, need to make raw query
-      .where('id = :id', { id })
-      .andWhere('user_id = :userId', { userId })
-      .execute();
+    await this.reviewRepository.remove(review);
   }
 
   public async createReview(
     createReviewDTO: CreateReviewDTO,
     creator: User,
   ): Promise<Review> {
-    const manufacturer = await this.manfuacturerService.getManufacturerById(
-      createReviewDTO.manufacturerId,
-    );
+    let manufacturer: Manufacturer;
+    try {
+      manufacturer = await this.manfuacturerService.getManufacturerById(
+        createReviewDTO.manufacturerId,
+      );
+    } catch (error) {
+      throw new IllegalArgumentException(
+        `Manufacturer with id: ${createReviewDTO.manufacturerId} was not found`,
+      );
+    }
     await this.dataSource.manager
       .findOneBy(AuctionLotView, {
         manufacturer: createReviewDTO.manufacturerId,

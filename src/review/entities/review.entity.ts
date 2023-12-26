@@ -13,7 +13,7 @@ import {
 
 @Entity({ name: 'review' })
 @Unique(['reviewer', 'manufacturer'])
-@Index(['reviewer', 'manufacturer'], { unique: true })
+// @Index(['reviewer', 'manufacturer'], { unique: true })
 export class Review {
   constructor(partial?: Partial<Review>) {
     Object.assign(this, partial);

@@ -8,6 +8,7 @@ import { QueryRunner, Repository, SelectQueryBuilder } from 'typeorm';
 import { CreateAuctionLotDTO } from '../dtos/create-auction-lot.dto';
 import { AuctionLot } from '../entities/auction-lot.entity';
 import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
+import { IllegalArgumentException } from 'src/shared/exceptions/IllegalArgumentException';
 
 export class AuctionLotService {
   private readonly logger = new Logger(AuctionLotService.name);
@@ -38,13 +39,11 @@ export class AuctionLotService {
       .getOneOrFail();
   }
 
-  public async getAuctionLotByIdWithAuction(
-    id: number,
-  ): Promise<AuctionLot | undefined> {
+  public async getAuctionLotByIdWithAuction(id: number): Promise<AuctionLot> {
     return await this.getAuctionLotBaseQuery()
       .leftJoinAndSelect('al.auction', 'auction')
       .where('al.id = :id', { id })
-      .getOne();
+      .getOneOrFail();
   }
 
   public async getAllActiveAuctionLots(
@@ -70,10 +69,13 @@ export class AuctionLotService {
     let auction: Auction;
     let product: Product;
 
-    product = await this.productService.getProductById(productId);
-
-    if (!product) {
-      throw new Error(`Could not find product with id: ${productId}`);
+    try {
+      product = await this.productService.getProductById(productId);
+    } catch (error) {
+      this.logger.warn(error.message);
+      throw new IllegalArgumentException(
+        `Product with id: ${productId} was not found`,
+      );
     }
 
     auction = await this.auctionService.createAuction(startDate, endDate);

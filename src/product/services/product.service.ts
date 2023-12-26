@@ -8,6 +8,8 @@ import { CreateProductDTO } from '../dtos/create-product.dto';
 import { Product } from '../entities/product.entity';
 import { join } from 'path';
 import { writeFile } from 'fs/promises';
+import { Manufacturer } from 'src/manufacturer/entities/manufacturer.entity';
+import { IllegalArgumentException } from 'src/shared/exceptions/IllegalArgumentException';
 export class ProductService {
   constructor(
     @InjectRepository(Product)
@@ -20,7 +22,9 @@ export class ProductService {
   }
 
   public async getProductById(id: number): Promise<Product> {
-    return await this.productRepository.findOneByOrFail({ id });
+    return await this.getProductBaseQuery()
+      .where('p.id = :id', { id })
+      .getOneOrFail();
   }
 
   //need to add pagination and make it decent
@@ -52,10 +56,13 @@ export class ProductService {
     { originalname, buffer }: Express.Multer.File,
     { id }: User,
   ): Promise<number> {
-    const manufacturer =
-      await this.manufacturerService.getManufacturerByUserId(id);
-    if (!manufacturer) {
-      throw new NotFoundException(`Manufacturer with id: ${id} was not found`);
+    let manufacturer: Manufacturer;
+    try {
+      manufacturer = await this.manufacturerService.getManufacturerByUserId(id);
+    } catch (error) {
+      throw new IllegalArgumentException(
+        `Invalid manufacturer id: ${id} parameter provided`,
+      );
     }
 
     const fileName = `product_${Date.now()}_${originalname}`;

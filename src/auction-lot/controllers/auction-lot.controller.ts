@@ -7,23 +7,25 @@ import {
   Logger,
   NotFoundException,
   Param,
-  ParseBoolPipe,
   ParseIntPipe,
   Post,
   Query,
+  UseFilters,
   UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { AuctionLotService } from '../services/auction-lot.service';
-import { AuctionLot } from '../entities/auction-lot.entity';
-import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
-import { CreateAuctionLotDTO } from '../dtos/create-auction-lot.dto';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
-import { Constants } from 'src/shared/type-utils/global.constants';
 import { ParseOptionalBoolPipe } from 'src/shared/pipes/parse-optional-boolean.pipe';
+import { Constants } from 'src/shared/type-utils/global.constants';
+import { CreateAuctionLotDTO } from '../dtos/create-auction-lot.dto';
+import { AuctionLot } from '../entities/auction-lot.entity';
+import { AuctionLotService } from '../services/auction-lot.service';
+import { EntityNotFoundExceptionFilter } from 'src/shared/exceptions/filters/entity-not-found-exception.filter';
+import { IllegalExceptionFilter } from 'src/shared/exceptions/filters/custom-http-exception.filter';
 
 @Controller('auction-lots')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -41,31 +43,27 @@ export class AuctionLotController {
 
   @Get(':id')
   @UseGuards(AuthGuardJwt)
+  @UseFilters(EntityNotFoundExceptionFilter)
   public getAuctionLotById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<AuctionLot> {
-    try {
-      4;
-      return this.auctionLotService.getAuctionLotById(id);
-    } catch (error) {
-      this.logger.warn(`/auction-lots/${id} GET, Message: ${error.message}`);
-      throw new NotFoundException();
-    }
+    return this.auctionLotService.getAuctionLotById(id);
   }
 
   @Post()
   @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.MANUFACTURER_ROLE)
-  public async createAuctionLot(
+  @UseFilters(IllegalExceptionFilter)
+  public createAuctionLot(
     @Body()
     createAuctionLotDTO: CreateAuctionLotDTO,
   ): Promise<AuctionLot> {
-    try {
-      return await this.auctionLotService.createAuctionLot(createAuctionLotDTO);
-    } catch (error) {
-      this.logger.warn(`/auction-lots POST, Message: ${error.message}`);
-      throw new BadRequestException(error.message);
-    }
+    // try {
+    return this.auctionLotService.createAuctionLot(createAuctionLotDTO);
+    // } catch (error) {
+    //   this.logger.warn(`/auction-lots POST, Message: ${error.message}`);
+    //   throw new BadRequestException(error.message);
+    // }
   }
 }

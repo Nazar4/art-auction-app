@@ -13,6 +13,7 @@ import {
   Post,
   Query,
   UploadedFile,
+  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -27,6 +28,8 @@ import { CreateProductDTO } from '../dtos/create-product.dto';
 import { Product } from '../entities/product.entity';
 import { ProductService } from '../services/product.service';
 import { ParseJSONPipe } from 'src/shared/pipes/parse-json.pipe';
+import { EntityNotFoundExceptionFilter } from 'src/shared/exceptions/filters/entity-not-found-exception.filter';
+import { IllegalExceptionFilter } from 'src/shared/exceptions/filters/custom-http-exception.filter';
 
 @Controller('products')
 export class ProductController {
@@ -37,30 +40,27 @@ export class ProductController {
   //need to add pagination and find all and only if man id given then filter
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
-  public async getProductsByManufacturerId(
+  public getProductsByManufacturerId(
     @Query('manufacturerId', ParseIntPipe) id: number,
   ): Promise<Product[]> {
-    return await this.productService.getProductsForManufacturer(id);
+    return this.productService.getProductsForManufacturer(id);
   }
 
   @Get(':id')
   @UseInterceptors(ClassSerializerInterceptor)
-  public async getProductById(
+  @UseFilters(EntityNotFoundExceptionFilter)
+  public getProductById(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<Product> {
-    try {
-      return await this.productService.getProductById(id);
-    } catch (error) {
-      this.logger.log(`/products/${id} GET, Message: ${error.message}`);
-      throw new NotFoundException();
-    }
+    return this.productService.getProductById(id);
   }
 
   @Post()
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.MANUFACTURER_ROLE)
   @UseInterceptors(FileInterceptor('picture'))
-  public async createProduct(
+  @UseFilters(IllegalExceptionFilter)
+  public createProduct(
     @Body(new ParseJSONPipe('createProductDTO'))
     createProductDTO: CreateProductDTO,
     @UploadedFile(
@@ -74,7 +74,7 @@ export class ProductController {
     picture: Express.Multer.File,
     @CurrentUser() creator: User,
   ): Promise<number> {
-    return await this.productService.createProduct(
+    return this.productService.createProduct(
       createProductDTO,
       picture,
       creator,

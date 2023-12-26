@@ -34,7 +34,7 @@ import { SeederModule } from './seeder/seeder.module';
       supportBigNumbers: false, //to make sure numbers are loaded as numbers not as strings
       autoLoadEntities: true /* any entity registered with
                               forFeature will be registered automatically*/,
-      synchronize: false /*property will drop tables, need to remove it
+      synchronize: true /*property will drop tables, need to remove it
                          after schemas creation*/,
     }),
     ScheduleModule.forRoot(),

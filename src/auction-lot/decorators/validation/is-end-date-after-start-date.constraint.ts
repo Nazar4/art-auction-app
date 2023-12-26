@@ -32,7 +32,7 @@ export function IsEndDateAfterStartDate(
           return DateUtils.isEndDateAfterStartDate(startDate, endDate);
         },
         defaultMessage(args: ValidationArguments) {
-          return 'The endDate must be at least 1 day greater than the startDate.';
+          return 'The endDate must be at least 1 month greater than the startDate.';
         },
       },
     });

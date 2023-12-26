@@ -6,6 +6,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Logger,
   NotFoundException,
   Param,
@@ -13,6 +14,7 @@ import {
   Patch,
   Post,
   Query,
+  UseFilters,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -22,13 +24,15 @@ import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
+import { ParsePositiveIntPipe } from 'src/shared/pipes/parse-positive-int.pipe';
+import { Constants } from 'src/shared/type-utils/global.constants';
 import { User } from 'src/user/entities/user.entity';
+import { EntityNotFoundError } from 'typeorm';
 import { CreateRequestDTO } from '../dtos/create-request.dto';
 import { Request } from '../entities/request.entity';
 import { RequestService } from '../services/request.service';
-import { ParsePositiveIntPipe } from 'src/shared/pipes/parse-positive-int.pipe';
-import { EntityNotFoundError } from 'typeorm';
-import { Constants } from 'src/shared/type-utils/global.constants';
+import { EntityNotFoundExceptionFilter } from 'src/shared/exceptions/filters/entity-not-found-exception.filter';
+import { IllegalExceptionFilter } from 'src/shared/exceptions/filters/custom-http-exception.filter';
 
 @Controller('requests')
 export class RequestController {
@@ -40,16 +44,12 @@ export class RequestController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.USER_ROLE)
-  public async getRequestById(
+  @UseFilters(EntityNotFoundExceptionFilter)
+  public getRequestById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: User,
   ): Promise<Request> {
-    try {
-      return await this.requestService.getRequestById(id, user);
-    } catch (error) {
-      this.logger.warn(`/requests/${id} GET, Message: ${error.message}`);
-      throw new NotFoundException();
-    }
+    return this.requestService.getRequestById(id, user);
   }
 
   @Post()
@@ -57,25 +57,22 @@ export class RequestController {
   @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.USER_ROLE)
-  public async createRequest(
+  @UseFilters(IllegalExceptionFilter)
+  public createRequest(
     @Body()
     createRequestDTO: CreateRequestDTO,
     @CurrentUser() user: User,
   ): Promise<Request> {
-    try {
-      return await this.requestService.createRequest(user, createRequestDTO);
-    } catch (error) {
-      this.logger.warn(`/requests POST, Message: ${error.message}`);
-      throw new BadRequestException(error.message);
-    }
+    return this.requestService.createRequest(user, createRequestDTO);
   }
 
   @Patch(':id')
   @UsePipes(new ValidationPipe())
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.USER_ROLE)
-  @HttpCode(202)
-  public async updateRequest(
+  @UseFilters(EntityNotFoundExceptionFilter, IllegalExceptionFilter)
+  @HttpCode(HttpStatus.ACCEPTED)
+  public updateRequest(
     @Param('id', ParseIntPipe)
     id: number,
     @Query('sum', ParsePositiveIntPipe)
@@ -83,31 +80,19 @@ export class RequestController {
     @CurrentUser()
     user: User,
   ): Promise<void> {
-    try {
-      return await this.requestService.updateRequest(id, sum, user);
-    } catch (error) {
-      this.logger.log(`/requests/${id} PATCH, Message: ${error.message}`);
-      if (error instanceof EntityNotFoundError) {
-        throw new NotFoundException();
-      }
-      throw new BadRequestException(error.message);
-    }
+    return this.requestService.updateRequest(id, sum, user);
   }
 
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(AuthGuardJwt, RolesGuard)
   @Roles(Constants.USER_ROLE)
+  @UseFilters(IllegalExceptionFilter)
   public async removeRequest(
     @Param('id', ParseIntPipe)
     id: number,
     @CurrentUser() user: User,
   ): Promise<void> {
-    try {
-      await this.requestService.removeRequest(user, id);
-    } catch (error) {
-      this.logger.warn(`/requests/${id} DELETE, Message: ${error.message}`);
-      throw error;
-    }
+    await this.requestService.removeRequest(user, id);
   }
 }

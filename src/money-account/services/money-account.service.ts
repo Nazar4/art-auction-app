@@ -57,7 +57,7 @@ export class MoneyAccountService {
   ): Promise<MoneyAccount> {
     if (!this.isUserOwnerOfAnMoneyAccount(user, id)) {
       throw new IllegalAccessException(
-        `User: ${user.id} is not an owner of money account: ${id}`,
+        this.generateUserNotOwnerErrorMessage(user.username, id),
       );
     }
     return await this.moneyAccountRepository.findOneByOrFail({ id });
@@ -69,7 +69,7 @@ export class MoneyAccountService {
   ): Promise<MoneyAccount> {
     if (!this.isUserOwnerOfAnMoneyAccount(user, undefined, name)) {
       throw new IllegalStateException(
-        `User: ${user.id} is not an owner of this money account: ${name}`,
+        this.generateUserNotOwnerErrorMessage(user.username, name),
       );
     }
     return await this.moneyAccountRepository.findOneByOrFail({ name });
@@ -92,7 +92,7 @@ export class MoneyAccountService {
   ): Promise<MoneyAccount> {
     if (!this.isUserOwnerOfAnMoneyAccount(user, id)) {
       throw new IllegalStateException(
-        `User: ${user.id} is not an owner of this money account: ${id}`,
+        this.generateUserNotOwnerErrorMessage(user.username, id),
       );
     }
     const moneyAccount = await this.moneyAccountRepository.findOneByOrFail({
@@ -124,5 +124,12 @@ export class MoneyAccountService {
     const uniqueName = `${name}_${currentTime}_${randomDigits}`;
 
     return uniqueName;
+  }
+
+  private generateUserNotOwnerErrorMessage(
+    username: string,
+    identifier: number | string,
+  ): string {
+    return `User: ${username} is not an owner of this money account: ${identifier}`;
   }
 }

@@ -2,15 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { useContainer } from 'class-validator';
 import * as express from 'express';
 import { mkdir } from 'fs/promises';
-import { join } from 'path';
 import { AppModule } from './app.module';
-import { CustomExceptionFilter } from './shared/exceptions/filters/CustomExceptionFilter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new CustomExceptionFilter()); //can be also put on top of controller's method
+  // app.useGlobalFilters(new CustomHttpExceptionFilter()); //can be also put on top of controller's method
 
   await mkdir(process.env.FILE_UPLOAD_PATH, { recursive: true });
 
