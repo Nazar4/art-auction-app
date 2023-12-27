@@ -14,7 +14,7 @@ export class AuctionEventService {
     private readonly auctionService: AuctionService,
     private readonly auctionLotService: AuctionLotService,
     private readonly requestService: RequestService,
-    private readonly dataSource: DataSource,
+    private readonly dataSource: DataSource
   ) {}
 
   @OnEvent('auction.finished', { async: true, promisify: true })
@@ -24,7 +24,7 @@ export class AuctionEventService {
     this.auctionService.finishAuction(auction);
 
     const auctionLot = await this.auctionLotService.getAuctionLotByAuctionId(
-      auction.id,
+      auction.id
     );
     const manufacturer = auctionLot.product.creator;
 
@@ -39,7 +39,7 @@ export class AuctionEventService {
         const request =
           await this.requestService.getRequestByAuctionLotIdAndSum(
             auctionLot.id,
-            auctionLot.topBet,
+            auctionLot.topBet
           );
         entities.push(request.user.moneyAccount, request);
         request.user.moneyAccount.balance -= request.sum;

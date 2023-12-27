@@ -5,7 +5,7 @@ import { Auction } from '../entities/auction.entity';
 export class AuctionService {
   constructor(
     @InjectRepository(Auction)
-    private readonly auctionRepository: Repository<Auction>,
+    private readonly auctionRepository: Repository<Auction>
   ) {}
 
   private getAuctionBaseQuery() {
@@ -14,7 +14,7 @@ export class AuctionService {
 
   public async createAuction(startDate: Date, endDate: Date): Promise<Auction> {
     return await this.auctionRepository.save(
-      new Auction({ startDate, endDate }),
+      new Auction({ startDate, endDate })
     );
   }
 

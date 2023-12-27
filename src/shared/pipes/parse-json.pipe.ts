@@ -3,7 +3,7 @@ import {
   BadRequestException,
   Injectable,
   PipeTransform,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 
 @Injectable()

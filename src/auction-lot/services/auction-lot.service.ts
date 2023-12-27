@@ -17,7 +17,7 @@ export class AuctionLotService {
     @InjectRepository(AuctionLot)
     private readonly auctionLotRepository: Repository<AuctionLot>,
     private readonly auctionService: AuctionService,
-    private readonly productService: ProductService,
+    private readonly productService: ProductService
   ) {}
 
   private getAuctionLotBaseQuery(): SelectQueryBuilder<AuctionLot> {
@@ -47,7 +47,7 @@ export class AuctionLotService {
   }
 
   public async getAllActiveAuctionLots(
-    withDates: boolean,
+    withDates: boolean
   ): Promise<AuctionLot[]> {
     const query = this.getAuctionLotBaseQuery()
       .leftJoinAndSelect('al.product', 'product')
@@ -64,7 +64,7 @@ export class AuctionLotService {
     startDate,
     endDate,
     initialPrice,
-    productId,
+    productId
   }: CreateAuctionLotDTO): Promise<AuctionLot> {
     let auction: Auction;
     let product: Product;
@@ -74,14 +74,14 @@ export class AuctionLotService {
     } catch (error) {
       this.logger.warn(error.message);
       throw new IllegalArgumentException(
-        `Product with id: ${productId} was not found`,
+        `Product with id: ${productId} was not found`
       );
     }
 
     auction = await this.auctionService.createAuction(startDate, endDate);
 
     return await this.auctionLotRepository.save(
-      new AuctionLot({ initialPrice, product, auction }),
+      new AuctionLot({ initialPrice, product, auction })
     );
   }
 

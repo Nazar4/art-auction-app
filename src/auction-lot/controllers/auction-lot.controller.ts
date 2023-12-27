@@ -14,7 +14,7 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
@@ -36,7 +36,7 @@ export class AuctionLotController {
   @Get()
   @UseGuards(AuthGuardJwt)
   public getAllActiveAuctionLots(
-    @Query('with-dates', ParseOptionalBoolPipe) withDates: boolean,
+    @Query('with-dates', ParseOptionalBoolPipe) withDates: boolean
   ): Promise<AuctionLot[]> {
     return this.auctionLotService.getAllActiveAuctionLots(withDates);
   }
@@ -45,7 +45,7 @@ export class AuctionLotController {
   @UseGuards(AuthGuardJwt)
   @UseFilters(EntityNotFoundExceptionFilter)
   public getAuctionLotById(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number
   ): Promise<AuctionLot> {
     return this.auctionLotService.getAuctionLotById(id);
   }
@@ -57,7 +57,7 @@ export class AuctionLotController {
   @UseFilters(IllegalExceptionFilter)
   public createAuctionLot(
     @Body()
-    createAuctionLotDTO: CreateAuctionLotDTO,
+    createAuctionLotDTO: CreateAuctionLotDTO
   ): Promise<AuctionLot> {
     // try {
     return this.auctionLotService.createAuctionLot(createAuctionLotDTO);

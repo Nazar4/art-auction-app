@@ -7,7 +7,7 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
-  Unique,
+  Unique
 } from 'typeorm';
 
 @Entity({ name: 'manufacturer' })
@@ -26,7 +26,7 @@ export class Manufacturer {
     transformer: new ColumnNumericTransformer(),
     precision: 2,
     scale: 1,
-    nullable: true,
+    nullable: true
   })
   averageRating: number;
 

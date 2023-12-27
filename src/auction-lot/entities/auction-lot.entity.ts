@@ -10,7 +10,7 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
-  Unique,
+  Unique
 } from 'typeorm';
 
 @Entity({ name: 'auction_lot' })
@@ -32,7 +32,7 @@ export class AuctionLot {
     transformer: new ColumnNumericTransformer(),
     precision: 10,
     scale: 2,
-    nullable: true,
+    nullable: true
   })
   topBet: number;
 
@@ -41,7 +41,7 @@ export class AuctionLot {
     type: 'decimal',
     transformer: new ColumnNumericTransformer(),
     precision: 10,
-    scale: 2,
+    scale: 2
   })
   initialPrice: number;
 
@@ -52,7 +52,7 @@ export class AuctionLot {
     transformer: new ColumnNumericTransformer(),
     precision: 10,
     scale: 2,
-    default: 1500,
+    default: 1500
   })
   discardedLotFee: number;
 

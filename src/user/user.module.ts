@@ -14,10 +14,10 @@ import { MoneyAccountModule } from 'src/money-account/money-account.module';
     TypeOrmModule.forFeature([User]),
     forwardRef(() => AuthModule),
     RoleModule,
-    MoneyAccountModule,
+    MoneyAccountModule
   ],
   controllers: [UserController],
   providers: [UserDoesNotExistConstraint, UserService, UserRepository],
-  exports: [UserRepository, UserService],
+  exports: [UserRepository, UserService]
 })
 export class UserModule {}

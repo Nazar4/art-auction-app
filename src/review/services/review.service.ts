@@ -14,7 +14,7 @@ export class ReviewService {
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
     private readonly manfuacturerService: ManufacturerService,
-    private readonly dataSource: DataSource,
+    private readonly dataSource: DataSource
   ) {}
 
   private getReviewBaseQuery(): SelectQueryBuilder<Review> {
@@ -39,31 +39,31 @@ export class ReviewService {
 
   public async createReview(
     createReviewDTO: CreateReviewDTO,
-    creator: User,
+    creator: User
   ): Promise<Review> {
     let manufacturer: Manufacturer;
     try {
       manufacturer = await this.manfuacturerService.getManufacturerById(
-        createReviewDTO.manufacturerId,
+        createReviewDTO.manufacturerId
       );
     } catch (error) {
       throw new IllegalArgumentException(
-        `Manufacturer with id: ${createReviewDTO.manufacturerId} was not found`,
+        `Manufacturer with id: ${createReviewDTO.manufacturerId} was not found`
       );
     }
     await this.dataSource.manager
       .findOneBy(AuctionLotView, {
-        manufacturer: createReviewDTO.manufacturerId,
+        manufacturer: createReviewDTO.manufacturerId
       })
       .then((entity: AuctionLotView) => {
         if (!entity) {
           throw new IllegalArgumentException(
-            `Manufacturer with id: ${createReviewDTO.manufacturerId} did not create any products`,
+            `Manufacturer with id: ${createReviewDTO.manufacturerId} did not create any products`
           );
         }
         if (entity.winner !== creator.id) {
           throw new IllegalStateException(
-            `User: ${creator.username} can not create review for this manufacturer`,
+            `User: ${creator.username} can not create review for this manufacturer`
           );
         }
       })
@@ -71,12 +71,12 @@ export class ReviewService {
         throw new IllegalStateException(error.message);
       });
     return await this.reviewRepository.save(
-      new Review({ ...createReviewDTO, manufacturer, reviewer: creator }),
+      new Review({ ...createReviewDTO, manufacturer, reviewer: creator })
     );
   }
 
   public async getAllReviewsByManufacturerId(
-    manufacturerId: number,
+    manufacturerId: number
   ): Promise<Review[]> {
     return await this.getReviewBaseQuery()
       .where('r.manufacturer_id = :manufacturerId', { manufacturerId })

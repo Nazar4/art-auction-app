@@ -3,7 +3,7 @@ import {
   IsNumberString,
   IsOptional,
   IsString,
-  Length,
+  Length
 } from 'class-validator';
 
 export class UpdateAddressDTO {

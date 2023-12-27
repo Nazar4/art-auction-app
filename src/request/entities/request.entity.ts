@@ -7,14 +7,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 @Entity({ name: 'request' })
 export class Request {
   constructor(partial?: Partial<Request>) {
     Object.assign(this, partial);
-    console.log(this);
   }
 
   @PrimaryGeneratedColumn()
@@ -24,7 +23,7 @@ export class Request {
     type: 'decimal',
     transformer: new ColumnNumericTransformer(),
     precision: 10,
-    scale: 2,
+    scale: 2
   })
   sum: number;
 

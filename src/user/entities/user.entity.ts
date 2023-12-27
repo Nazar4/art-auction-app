@@ -5,7 +5,7 @@ import {
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
-  Unique,
+  Unique
 } from 'typeorm';
 import { Role } from '../../role/entities/role.entity';
 import { Address } from '../../address/entities/address.entity';
@@ -53,7 +53,7 @@ export class User {
   @OneToOne(() => Address, {
     eager: false,
     nullable: true,
-    onDelete: 'CASCADE',
+    onDelete: 'CASCADE'
   })
   @JoinColumn({ name: 'address_id', referencedColumnName: 'id' })
   address: Address;
@@ -61,7 +61,7 @@ export class User {
   @OneToOne(() => MoneyAccount, {
     eager: true, //needs to be lazy true
     nullable: true,
-    onDelete: 'CASCADE',
+    onDelete: 'CASCADE'
   })
   @JoinColumn({ name: 'money_account_id', referencedColumnName: 'id' })
   moneyAccount: MoneyAccount;

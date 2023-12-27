@@ -10,13 +10,13 @@ export class AuthService {
 
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly jwtService: JwtService,
+    private readonly jwtService: JwtService
   ) {}
 
   public getTokenForUser(user: User): string {
     return this.jwtService.sign({
       username: user.username,
-      sub: user.id,
+      sub: user.id
     });
   }
 

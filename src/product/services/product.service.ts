@@ -14,7 +14,7 @@ export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-    private readonly manufacturerService: ManufacturerService,
+    private readonly manufacturerService: ManufacturerService
   ) {}
 
   private getProductBaseQuery(): SelectQueryBuilder<Product> {
@@ -36,7 +36,7 @@ export class ProductService {
 
   //need to add pagination and make it decent
   public async getProductsSortedByPrice(
-    sortType: SortType,
+    sortType: SortType
   ): Promise<Product[]> {
     return await this.getProductBaseQuery()
       .orderBy('p.price', sortType)
@@ -44,7 +44,7 @@ export class ProductService {
   }
 
   public async getProductsForManufacturer(
-    manufacturerId: number,
+    manufacturerId: number
   ): Promise<Product[]> {
     return await this.getProductBaseQuery()
       .where('p.manufacturer = :manufacturerId', { manufacturerId })
@@ -54,14 +54,14 @@ export class ProductService {
   public async createProduct(
     createProductDTO: CreateProductDTO,
     { originalname, buffer }: Express.Multer.File,
-    { id }: User,
+    { id }: User
   ): Promise<number> {
     let manufacturer: Manufacturer;
     try {
       manufacturer = await this.manufacturerService.getManufacturerByUserId(id);
     } catch (error) {
       throw new IllegalArgumentException(
-        `Invalid manufacturer id: ${id} parameter provided`,
+        `Invalid manufacturer id: ${id} parameter provided`
       );
     }
 
@@ -73,7 +73,7 @@ export class ProductService {
     const product = new Product({
       ...createProductDTO,
       creator: manufacturer,
-      photoFilePath: fileName,
+      photoFilePath: fileName
     });
     product.calculatePercentageFeeForProductPrice();
     await this.productRepository.save(product);

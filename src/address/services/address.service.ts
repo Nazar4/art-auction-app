@@ -6,7 +6,7 @@ import {
   DeleteResult,
   EntityManager,
   Repository,
-  SelectQueryBuilder,
+  SelectQueryBuilder
 } from 'typeorm';
 import { CreateAddressDTO } from '../dtos/create-address.dto';
 import { UpdateAddressDTO } from '../dtos/update-address.dto';
@@ -19,7 +19,7 @@ export class AddressService {
   constructor(
     @InjectRepository(Address)
     private readonly addressRepository: Repository<Address>,
-    private readonly entityManager: EntityManager,
+    private readonly entityManager: EntityManager
   ) {}
 
   private getAddressBaseQuery(): SelectQueryBuilder<Address> {
@@ -39,11 +39,11 @@ export class AddressService {
   public async updateAddress(
     inputAddress: UpdateAddressDTO,
     originalAddressId: number,
-    user: User,
+    user: User
   ): Promise<Address> {
     const userWithAddress = await this.entityManager.findOne(User, {
       where: { id: user.id },
-      relations: ['address'],
+      relations: ['address']
     });
 
     if (
@@ -52,22 +52,22 @@ export class AddressService {
       userWithAddress.address.id !== originalAddressId
     ) {
       throw new IllegalAccessException(
-        `User: ${user.username} is not owner of the address: ${originalAddressId}`,
+        `User: ${user.username} is not owner of the address: ${originalAddressId}`
       );
     }
 
     return await this.addressRepository.save(
       new Address({
         ...userWithAddress.address,
-        ...inputAddress,
-      }),
+        ...inputAddress
+      })
     );
   }
 
   public async deleteAddress(id: number, user: User): Promise<DeleteResult> {
     const userWithAddress = await this.entityManager.findOne(User, {
       where: { id: user.id },
-      relations: ['address'],
+      relations: ['address']
     });
 
     if (
@@ -76,7 +76,7 @@ export class AddressService {
       userWithAddress.address.id !== id
     ) {
       throw new IllegalAccessException(
-        `User: ${user.username} is not owner of the address: ${id}`,
+        `User: ${user.username} is not owner of the address: ${id}`
       );
     }
 

@@ -17,13 +17,13 @@ import { AuthGuardJwt } from './guards/auth-guard.jwt';
       useFactory: () => ({
         secret: process.env.AUTH_SECRET,
         signOptions: {
-          expiresIn: '24h',
-        },
-      }),
-    }),
+          expiresIn: '24h'
+        }
+      })
+    })
   ],
   providers: [LocalStrategy, JwtStrategy, AuthService],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService]
 })
 export class AuthModule {}

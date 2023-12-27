@@ -7,6 +7,6 @@ import { AuctionTaskService } from './services/auction-task.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Auction])],
   providers: [AuctionService, AuctionTaskService],
-  exports: [AuctionService],
+  exports: [AuctionService]
 })
 export class AuctionModule {}

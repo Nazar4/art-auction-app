@@ -4,7 +4,7 @@ import {
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
-  registerDecorator,
+  registerDecorator
 } from 'class-validator';
 import { UserRepository } from 'src/user/user.repository';
 
@@ -17,10 +17,10 @@ export class UserDoesNotExistConstraint
 
   public async validate(
     value: any,
-    validationArguments?: ValidationArguments,
+    validationArguments?: ValidationArguments
   ): Promise<boolean> {
     const entity = await this.userRepository.findOneBy({
-      [validationArguments.property]: value,
+      [validationArguments.property]: value
     });
 
     return entity === null;
@@ -37,7 +37,7 @@ export function UserDoesNotExist(validationOptions?: ValidationOptions) {
       target: object.constructor,
       propertyName,
       options: validationOptions,
-      validator: UserDoesNotExistConstraint,
+      validator: UserDoesNotExistConstraint
     });
   };
 }

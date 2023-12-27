@@ -17,7 +17,7 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -41,7 +41,7 @@ export class ReviewController {
   @Get()
   @UseFilters(EntityNotFoundExceptionFilter)
   public getReviewsByManufacturerId(
-    @Query('manufacturerId', ParseIntPipe) id: number,
+    @Query('manufacturerId', ParseIntPipe) id: number
   ): Promise<Review[]> {
     return this.reviewService.getAllReviewsByManufacturerId(id);
   }
@@ -61,7 +61,7 @@ export class ReviewController {
   @HttpCode(HttpStatus.ACCEPTED)
   public createReveiw(
     @Body() review: CreateReviewDTO,
-    @CurrentUser() creator: User,
+    @CurrentUser() creator: User
   ): Promise<Review> {
     return this.reviewService.createReview(review, creator);
   }
@@ -73,7 +73,7 @@ export class ReviewController {
   @HttpCode(HttpStatus.NO_CONTENT)
   public deleteReveiw(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ): Promise<void> {
     return this.reviewService.deleteReview(id, user);
   }

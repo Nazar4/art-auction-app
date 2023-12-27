@@ -19,7 +19,7 @@ export class RequestService {
     private readonly requestRepository: Repository<Request>,
     private readonly auctionLotService: AuctionLotService,
     private readonly moneyAccountService: MoneyAccountService,
-    private readonly dataSource: DataSource,
+    private readonly dataSource: DataSource
   ) {}
 
   private getRequestBaseQuery(): SelectQueryBuilder<Request> {
@@ -28,7 +28,7 @@ export class RequestService {
 
   public async getRequestById(
     id: number,
-    { id: userId }: User,
+    { id: userId }: User
   ): Promise<Request> {
     return await this.getRequestBaseQuery()
       .where('req.id = :id', { id })
@@ -39,7 +39,7 @@ export class RequestService {
 
   public async createRequest(
     user: User,
-    { sum, auctionLotId }: CreateRequestDTO,
+    { sum, auctionLotId }: CreateRequestDTO
   ): Promise<Request> {
     let auctionLot: AuctionLot;
     try {
@@ -47,7 +47,7 @@ export class RequestService {
         await this.auctionLotService.getAuctionLotByIdWithAuction(auctionLotId);
     } catch (error) {
       throw new IllegalArgumentException(
-        `Invalid auction lot id: ${auctionLotId} parameter provided`,
+        `Invalid auction lot id: ${auctionLotId} parameter provided`
       );
     }
 
@@ -57,7 +57,7 @@ export class RequestService {
       auctionLot.auction.endDate.getTime() < Date.now()
     ) {
       throw new IllegalStateException(
-        'The auction is already finished or the request is invalid.',
+        'The auction is already finished or the request is invalid.'
       );
     }
 
@@ -74,40 +74,32 @@ export class RequestService {
       await this.moneyAccountService.encreaseBalanceInUse(
         user.moneyAccount,
         sum,
-        queryRunner,
+        queryRunner
       );
 
       await queryRunner.commitTransaction();
-    } catch (err) {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
-      throw new IllegalStateException(err.message);
+      throw new IllegalStateException(error.message);
     } finally {
       await queryRunner.release();
     }
 
-    if (auctionLot.topBet < sum) {
+    if (!auctionLot.topBet || auctionLot.topBet < sum) {
       auctionLot.topBet = sum;
     }
     auctionLot.requestsNumber++;
 
     this.auctionLotService.saveAuctionLot(auctionLot);
 
-    console.log('sum', sum);
-    let request: Request;
-    try {
-      request = await this.requestRepository.save(
-        new Request({ sum, auctionLot, user }),
-      );
-    } catch (error) {
-      this.logger.warn(error.meesage);
-      throw new Error(error.message);
-    }
-    return request;
+    return await this.requestRepository.save(
+      new Request({ sum, auctionLot, user })
+    );
   }
 
   private async userHasRequestForLot(
     { id }: User,
-    auctionLotId: number,
+    auctionLotId: number
   ): Promise<number> {
     return this.getRequestBaseQuery()
       .where('req.user_id = :id', { id })
@@ -129,7 +121,7 @@ export class RequestService {
     try {
       await this.moneyAccountService.encreaseBalanceInUse(
         user.moneyAccount,
-        sumDifference,
+        sumDifference
       );
     } catch (error) {
       throw new IllegalStateException(error.message);
@@ -139,7 +131,7 @@ export class RequestService {
       // The request being updated was previously the top bet and the sum was decreased
       // so need to find new top bet request
       const newTopBetRequest = await this.findNewTopBetRequest(
-        request.auctionLot.id,
+        request.auctionLot.id
       );
       request.auctionLot.topBet = newTopBetRequest
         ? newTopBetRequest.sum
@@ -154,12 +146,12 @@ export class RequestService {
       this.auctionLotService.saveAuctionLot(request.auctionLot);
     }
 
-    await this.requestRepository.save(request);
+    return await this.requestRepository.save(request);
   }
 
   public async removeRequest(
     { id, moneyAccount }: User,
-    requestId: number,
+    requestId: number
   ): Promise<void> {
     const request = await this.getRequestBaseQuery()
       .where('req.id = :requestId', { requestId })
@@ -174,7 +166,7 @@ export class RequestService {
       request.auctionLot.auction.endDate.getTime() < Date.now()
     ) {
       throw new IllegalStateException(
-        'The auction is already finished or the request is invalid.',
+        'The auction is already finished or the request is invalid.'
       );
     }
 
@@ -183,7 +175,7 @@ export class RequestService {
     await this.requestRepository.remove(request);
 
     const topBetRequest = await this.findNewTopBetRequest(
-      request.auctionLot.id,
+      request.auctionLot.id
     );
 
     request.auctionLot.topBet = topBetRequest ? topBetRequest.sum : null;
@@ -193,7 +185,7 @@ export class RequestService {
   }
 
   private async findNewTopBetRequest(
-    auctionLotId: number,
+    auctionLotId: number
   ): Promise<Request | undefined> {
     return await this.getRequestBaseQuery()
       .where('req.auction_lot = :auctionLotId', { auctionLotId })
@@ -203,7 +195,7 @@ export class RequestService {
 
   public async getRequestByAuctionLotIdAndSum(
     auctionLotId: number,
-    sum: number,
+    sum: number
   ): Promise<Request | undefined> {
     return await this.getRequestBaseQuery()
       .where('req.auction_lot = :auctionLotId', { auctionLotId })

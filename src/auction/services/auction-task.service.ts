@@ -9,7 +9,7 @@ export class AuctionTaskService {
   private readonly logger = new Logger(AuctionTaskService.name);
   constructor(
     private readonly auctionService: AuctionService,
-    private readonly events: EventEmitter2,
+    private readonly events: EventEmitter2
   ) {}
 
   @Cron('0 8 * * *', { name: 'auctions-finished' })

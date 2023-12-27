@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   ClassSerializerInterceptor,
   Controller,
@@ -8,7 +7,6 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
-  NotFoundException,
   Param,
   ParseIntPipe,
   Patch,
@@ -18,21 +16,20 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { RolesGuard } from 'src/auth/guards/auth-guard.roles';
+import { IllegalExceptionFilter } from 'src/shared/exceptions/filters/custom-http-exception.filter';
+import { EntityNotFoundExceptionFilter } from 'src/shared/exceptions/filters/entity-not-found-exception.filter';
 import { ParsePositiveIntPipe } from 'src/shared/pipes/parse-positive-int.pipe';
 import { Constants } from 'src/shared/type-utils/global.constants';
 import { User } from 'src/user/entities/user.entity';
-import { EntityNotFoundError } from 'typeorm';
 import { CreateRequestDTO } from '../dtos/create-request.dto';
 import { Request } from '../entities/request.entity';
 import { RequestService } from '../services/request.service';
-import { EntityNotFoundExceptionFilter } from 'src/shared/exceptions/filters/entity-not-found-exception.filter';
-import { IllegalExceptionFilter } from 'src/shared/exceptions/filters/custom-http-exception.filter';
 
 @Controller('requests')
 export class RequestController {
@@ -47,7 +44,7 @@ export class RequestController {
   @UseFilters(EntityNotFoundExceptionFilter)
   public getRequestById(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ): Promise<Request> {
     return this.requestService.getRequestById(id, user);
   }
@@ -61,7 +58,7 @@ export class RequestController {
   public createRequest(
     @Body()
     createRequestDTO: CreateRequestDTO,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ): Promise<Request> {
     return this.requestService.createRequest(user, createRequestDTO);
   }
@@ -78,8 +75,8 @@ export class RequestController {
     @Query('sum', ParsePositiveIntPipe)
     sum: number,
     @CurrentUser()
-    user: User,
-  ): Promise<void> {
+    user: User
+  ): Promise<Request> {
     return this.requestService.updateRequest(id, sum, user);
   }
 
@@ -91,7 +88,7 @@ export class RequestController {
   public async removeRequest(
     @Param('id', ParseIntPipe)
     id: number,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ): Promise<void> {
     await this.requestService.removeRequest(user, id);
   }

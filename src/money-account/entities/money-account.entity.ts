@@ -17,7 +17,7 @@ export class MoneyAccount {
     precision: 10,
     scale: 2,
     nullable: true,
-    default: 0,
+    default: 0
   })
   balance: number;
 
@@ -28,7 +28,7 @@ export class MoneyAccount {
     precision: 10,
     scale: 2,
     nullable: true,
-    default: 0,
+    default: 0
   })
   balanceInUse: number;
 

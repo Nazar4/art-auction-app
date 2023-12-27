@@ -7,7 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 @Entity({ name: 'product' })
@@ -35,7 +35,7 @@ export class Product {
     type: 'decimal',
     transformer: new ColumnNumericTransformer(),
     precision: 10,
-    scale: 2,
+    scale: 2
   })
   price: number;
 

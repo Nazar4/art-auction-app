@@ -14,7 +14,7 @@ import {
   Query,
   UseFilters,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -41,7 +41,7 @@ export class MoneyAccountController {
   @UseFilters(IllegalExceptionFilter, EntityNotFoundExceptionFilter)
   public getMoneyAccountById(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ): Promise<MoneyAccount> {
     return this.moneyAccountService.getMoneyAccountById(id, user);
   }
@@ -53,7 +53,7 @@ export class MoneyAccountController {
   @UseFilters(IllegalExceptionFilter, EntityNotFoundExceptionFilter)
   public getMoneyAccountByName(
     @Query('name') name: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ): Promise<MoneyAccount> {
     return this.moneyAccountService.getMoneyAccountByName(name, user);
   }
@@ -66,12 +66,12 @@ export class MoneyAccountController {
   public async updateMoneyAccountName(
     @Param('id', ParseIntPipe) id: number,
     @Query('name') name: string,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ): Promise<MoneyAccount> {
     return await this.moneyAccountService.updateMoneyAccountNameById(
       id,
       name,
-      user,
+      user
     );
   }
 
@@ -81,7 +81,7 @@ export class MoneyAccountController {
   @UseFilters(EntityNotFoundExceptionFilter)
   @HttpCode(HttpStatus.OK)
   public blockMoneyAccount(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number
   ): Promise<MoneyAccount> {
     return this.moneyAccountService.blockMoneyAccountById(id);
   }

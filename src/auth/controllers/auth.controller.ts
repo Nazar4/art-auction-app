@@ -14,7 +14,7 @@ export class AuthController {
   public async login(@CurrentUser() user: User) {
     return {
       userId: user.id,
-      token: this.authService.getTokenForUser(user),
+      token: this.authService.getTokenForUser(user)
     };
   }
 }

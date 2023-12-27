@@ -10,6 +10,6 @@ import { ManufacturerController } from './controllers/manufacturer.controller';
   imports: [TypeOrmModule.forFeature([Manufacturer]), UserModule, AuthModule],
   providers: [ManufacturerService],
   controllers: [ManufacturerController],
-  exports: [ManufacturerService],
+  exports: [ManufacturerService]
 })
 export class ManufacturerModule {}

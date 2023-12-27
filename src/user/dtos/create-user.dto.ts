@@ -3,7 +3,7 @@ import {
   IsMobilePhone,
   IsNotEmpty,
   IsString,
-  Length,
+  Length
 } from 'class-validator';
 import { IsRepeated } from '../decorators/validation/is-repeated.constraint';
 import { UserDoesNotExist } from '../decorators/validation/user-does-not-exist.constraint';

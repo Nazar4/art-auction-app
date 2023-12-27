@@ -6,7 +6,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Min,
+  Min
 } from 'class-validator';
 import { IsIntegerOrDecimalConstraint } from 'src/shared/validation-constraints/is-integer-or-decimal.constraint';
 

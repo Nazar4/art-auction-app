@@ -14,7 +14,7 @@ export class UserService {
     private readonly authService: AuthService,
     private readonly roleService: RoleService,
     private readonly moneyAccountService: MoneyAccountService,
-    private readonly userRepository: UserRepository,
+    private readonly userRepository: UserRepository
   ) {}
 
   private getUserBaseQuery(): SelectQueryBuilder<User> {
@@ -36,12 +36,12 @@ export class UserService {
 
   public async createUser(
     createUserDto: CreateUserDto,
-    role: Role,
+    role: Role
   ): Promise<User> {
     const user = new User({
       ...createUserDto,
       password: await this.authService.hashPassword(createUserDto.password),
-      role: await this.roleService.getRoleByName(role),
+      role: await this.roleService.getRoleByName(role)
     });
 
     // await this.roleService.assignUserRole(user);

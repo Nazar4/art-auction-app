@@ -12,7 +12,7 @@ export class ManufacturerService {
     @InjectRepository(Manufacturer)
     private readonly manufacturerRepository: Repository<Manufacturer>,
     private readonly userService: UserService,
-    private readonly authService: AuthService,
+    private readonly authService: AuthService
   ) {}
 
   private getManufacturerBaseQuery(): SelectQueryBuilder<Manufacturer> {
@@ -20,11 +20,11 @@ export class ManufacturerService {
   }
 
   public async createManufacturer(
-    createUserDto: CreateUserDto,
+    createUserDto: CreateUserDto
   ): Promise<string> {
     const newUser = await this.userService.createUser(
       createUserDto,
-      Constants.MANUFACTURER_ROLE as Role,
+      Constants.MANUFACTURER_ROLE as Role
     );
     const manufacturer = new Manufacturer({ user: newUser });
     await this.manufacturerRepository.save(manufacturer);
@@ -38,7 +38,7 @@ export class ManufacturerService {
   }
 
   public async getManufacturersSortedByAverageRating(
-    sortType: SortType = 'DESC',
+    sortType: SortType = 'DESC'
   ): Promise<Manufacturer[]> {
     return await this.getManufacturerBaseQuery()
       .orderBy('man.average_rating', sortType)

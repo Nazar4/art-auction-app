@@ -5,12 +5,12 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   ViewColumn,
-  ViewEntity,
+  ViewEntity
 } from 'typeorm';
 
 @ViewEntity({
   expression: `SELECT product_id AS product, lot_winner AS winner, manufacturer FROM auction_lot 
-    LEFT JOIN product ON product.id = auction_lot.product_id`,
+    LEFT JOIN product ON product.id = auction_lot.product_id`
 })
 export class AuctionLotView {
   @ViewColumn()

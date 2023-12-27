@@ -8,11 +8,11 @@ export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(
-    context: ExecutionContext,
+    context: ExecutionContext
   ): boolean | Promise<boolean> | Observable<boolean> {
     const requiredRoles = this.reflector.get<string[]>(
       Constants.ROLES_GUARD,
-      context.getHandler(),
+      context.getHandler()
     );
     if (!requiredRoles) {
       // No roles specified, allow access

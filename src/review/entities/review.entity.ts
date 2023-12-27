@@ -8,7 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
+  Unique
 } from 'typeorm';
 
 @Entity({ name: 'review' })
@@ -27,7 +27,7 @@ export class Review {
     transformer: new ColumnNumericTransformer(),
     precision: 2,
     scale: 1,
-    nullable: true,
+    nullable: true
   })
   rating: number;
 

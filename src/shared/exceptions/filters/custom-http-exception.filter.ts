@@ -3,7 +3,7 @@ import {
   Catch,
   ExceptionFilter,
   HttpStatus,
-  Logger,
+  Logger
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { IllegalAccessException } from '../IllegalAccessException';
@@ -20,13 +20,13 @@ export class IllegalExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     this.logger.error(
-      `${request.url} ${request.method}, Message: ${exception.message}`,
+      `${request.url} ${request.method}, Message: ${exception.message}`
     );
 
     response.status(HttpStatus.BAD_REQUEST).json({
       statusCode: HttpStatus.BAD_REQUEST,
       path: request.url,
-      message: exception.message,
+      message: exception.message
     });
   }
 }

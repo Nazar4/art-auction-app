@@ -10,10 +10,10 @@ import { AuthModule } from 'src/auth/auth.module';
   imports: [
     TypeOrmModule.forFeature([Product]),
     ManufacturerModule,
-    AuthModule,
+    AuthModule
   ],
   providers: [ProductService],
   controllers: [ProductController],
-  exports: [ProductService],
+  exports: [ProductService]
 })
 export class ProductModule {}

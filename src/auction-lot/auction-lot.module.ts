@@ -10,10 +10,10 @@ import { ProductModule } from 'src/product/product.module';
   imports: [
     TypeOrmModule.forFeature([AuctionLot]),
     AuctionModule,
-    ProductModule,
+    ProductModule
   ],
   providers: [AuctionLotService],
   controllers: [AuctionLotController],
-  exports: [AuctionLotService],
+  exports: [AuctionLotService]
 })
 export class AuctionLotModule {}

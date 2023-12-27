@@ -15,7 +15,7 @@ import {
   UploadedFile,
   UseFilters,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
@@ -41,7 +41,7 @@ export class ProductController {
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   public getProductsByManufacturerId(
-    @Query('manufacturerId', ParseIntPipe) id: number,
+    @Query('manufacturerId', ParseIntPipe) id: number
   ): Promise<Product[]> {
     return this.productService.getProductsForManufacturer(id);
   }
@@ -50,7 +50,7 @@ export class ProductController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseFilters(EntityNotFoundExceptionFilter)
   public getProductById(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number
   ): Promise<Product> {
     return this.productService.getProductById(id);
   }
@@ -67,17 +67,17 @@ export class ProductController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: Constants.MAX_FILE_SIZE }),
-          new FileTypeValidator({ fileType: Constants.FILE_TYPES }),
-        ],
-      }),
+          new FileTypeValidator({ fileType: Constants.FILE_TYPES })
+        ]
+      })
     )
     picture: Express.Multer.File,
-    @CurrentUser() creator: User,
+    @CurrentUser() creator: User
   ): Promise<number> {
     return this.productService.createProduct(
       createProductDTO,
       picture,
-      creator,
+      creator
     );
   }
 

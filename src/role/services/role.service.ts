@@ -4,7 +4,7 @@ import { Role } from '../entities/role.entity';
 
 export class RoleService {
   constructor(
-    @InjectRepository(Role) private readonly roleRepository: Repository<Role>,
+    @InjectRepository(Role) private readonly roleRepository: Repository<Role>
   ) {}
 
   public async getRoleByName(name: string) {

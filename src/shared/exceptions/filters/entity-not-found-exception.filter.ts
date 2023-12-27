@@ -3,7 +3,7 @@ import {
   Catch,
   ExceptionFilter,
   HttpStatus,
-  Logger,
+  Logger
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { EntityNotFoundError } from 'typeorm';
@@ -18,12 +18,12 @@ export class EntityNotFoundExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     this.logger.error(
-      `${request.url} ${request.method}, Message: ${exception.message}`,
+      `${request.url} ${request.method}, Message: ${exception.message}`
     );
 
     response.status(HttpStatus.NOT_FOUND).json({
       statusCode: HttpStatus.NOT_FOUND,
-      path: request.url,
+      path: request.url
     });
   }
 }

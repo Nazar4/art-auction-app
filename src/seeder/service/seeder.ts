@@ -10,7 +10,7 @@ import { MONEY_ACCOUNT_LIST, ROLE_LIST, USER_LIST } from '../seeds/seed.data';
 export async function seedInitialDBData(
   dataSource: DataSource,
   authService: AuthService,
-  roleService: RoleService,
+  roleService: RoleService
 ): Promise<void> {
   const roleRepository = dataSource.getRepository(Role);
   const moneyAccountRepository = dataSource.getRepository(MoneyAccount);
@@ -30,7 +30,7 @@ export async function seedInitialDBData(
     const moneyAccountsList = MONEY_ACCOUNT_LIST;
     for (const moneyAccount of moneyAccountsList) {
       let _moneyAccount = moneyAccountRepository.create(
-        moneyAccount as unknown as MoneyAccount,
+        moneyAccount as unknown as MoneyAccount
       );
       await moneyAccountRepository.save(_moneyAccount);
     }
@@ -44,7 +44,7 @@ export async function seedInitialDBData(
       let _user = userRepository.create({
         ...(user as unknown as User),
         password: await authService.hashPassword(user.password),
-        role: await roleService.getRoleByName(Constants.ADMIN_ROLE),
+        role: await roleService.getRoleByName(Constants.ADMIN_ROLE)
       });
       await userRepository.save(_user);
     }

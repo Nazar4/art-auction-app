@@ -12,7 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
@@ -31,7 +31,7 @@ export class UserController {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly userService: UserService,
+    private readonly userService: UserService
   ) {}
 
   // @Get()
@@ -57,15 +57,15 @@ export class UserController {
   @Post()
   @UsePipes(new ValidationPipe())
   public async registerUser(
-    @Body() createUserDto: CreateUserDto,
+    @Body() createUserDto: CreateUserDto
   ): Promise<any> {
     const user = await this.userService.createUser(
       createUserDto,
-      Constants.USER_ROLE as Role,
+      Constants.USER_ROLE as Role
     );
 
     return {
-      token: this.authService.getTokenForUser(user),
+      token: this.authService.getTokenForUser(user)
     };
   }
 

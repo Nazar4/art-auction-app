@@ -21,7 +21,7 @@ import { SeederModule } from './seeder/seeder.module';
   imports: [
     ConfigModule.forRoot({
       envFilePath: 'dev.env',
-      isGlobal: true, //need to use it in each module
+      isGlobal: true //need to use it in each module
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
@@ -35,7 +35,7 @@ import { SeederModule } from './seeder/seeder.module';
       autoLoadEntities: true /* any entity registered with
                               forFeature will be registered automatically*/,
       synchronize: true /*property will drop tables, need to remove it
-                         after schemas creation*/,
+                         after schemas creation*/
     }),
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot({
@@ -48,7 +48,7 @@ import { SeederModule } from './seeder/seeder.module';
       maxListeners: 5,
       verboseMemoryLeak: true,
       // disable throwing uncaughtException if an error event is emitted and it has no listeners
-      ignoreErrors: false,
+      ignoreErrors: false
     }),
 
     UserModule,
@@ -63,9 +63,9 @@ import { SeederModule } from './seeder/seeder.module';
     AuctionModule,
     AuthModule,
     SharedModule,
-    SeederModule,
+    SeederModule
   ],
   controllers: [],
-  providers: [],
+  providers: []
 })
 export class AppModule {}

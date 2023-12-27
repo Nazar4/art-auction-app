@@ -16,7 +16,7 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { CreateAddressDTO } from '../dtos/create-address.dto';
 import { UpdateAddressDTO } from '../dtos/update-address.dto';
@@ -38,7 +38,7 @@ export class AddressController {
   @UseGuards(AuthGuardJwt)
   @UseFilters(EntityNotFoundExceptionFilter)
   public getAddressById(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number
   ): Promise<Address> {
     return this.addressService.getAddressById(id);
   }
@@ -57,7 +57,7 @@ export class AddressController {
   public async udpateAddress(
     @Param('id', ParseIntPipe) id: number,
     @Body() input: UpdateAddressDTO,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ): Promise<Address> {
     try {
       return await this.addressService.updateAddress(input, id, user);
@@ -72,7 +72,7 @@ export class AddressController {
   @UseGuards(AuthGuardJwt)
   public async deleteAddress(
     @Param('id', ParseIntPipe) id: number,
-    @CurrentUser() user: User,
+    @CurrentUser() user: User
   ): Promise<void> {
     try {
       await this.addressService.deleteAddress(id, user);

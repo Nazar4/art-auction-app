@@ -10,9 +10,9 @@ import { AuctionLotModule } from 'src/auction-lot/auction-lot.module';
   imports: [
     TypeOrmModule.forFeature([Request]),
     MoneyAccountModule,
-    AuctionLotModule,
+    AuctionLotModule
   ],
   providers: [RequestService],
-  controllers: [RequestController],
+  controllers: [RequestController]
 })
 export class RequestModule {}

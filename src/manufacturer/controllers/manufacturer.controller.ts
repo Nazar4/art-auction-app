@@ -12,7 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { AuthGuardJwt } from 'src/auth/guards/auth-guard.jwt';
 import { SortType } from 'src/shared/type-utils/global.types';
@@ -30,7 +30,7 @@ export class ManufacturerController {
   @Post()
   @UsePipes(new ValidationPipe())
   public registerManufacturer(
-    @Body() createUserDto: CreateUserDto,
+    @Body() createUserDto: CreateUserDto
   ): Promise<string> {
     return this.manufacturerService.createManufacturer(createUserDto);
   }
@@ -39,10 +39,10 @@ export class ManufacturerController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseGuards(AuthGuardJwt)
   public getManufacturersSortedByAverageRating(
-    @Query('sortType') sortType: SortType,
+    @Query('sortType') sortType: SortType
   ): Promise<Manufacturer[]> {
     return this.manufacturerService.getManufacturersSortedByAverageRating(
-      sortType,
+      sortType
     );
   }
 
@@ -50,7 +50,7 @@ export class ManufacturerController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseFilters(EntityNotFoundExceptionFilter)
   public getManufacturerByUserId(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: number
   ): Promise<Manufacturer> {
     return this.manufacturerService.getManufacturerByUserId(id);
   }

@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
   Max,
-  Min,
+  Min
 } from 'class-validator';
 
 export class CreateReviewDTO {

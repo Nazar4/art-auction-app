@@ -8,6 +8,6 @@ import { MoneyAccountService } from './services/money-account.service';
   imports: [TypeOrmModule.forFeature([MoneyAccount])],
   providers: [MoneyAccountService],
   controllers: [MoneyAccountController],
-  exports: [MoneyAccountService],
+  exports: [MoneyAccountService]
 })
 export class MoneyAccountModule {}

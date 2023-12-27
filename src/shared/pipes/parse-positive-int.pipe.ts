@@ -2,7 +2,7 @@ import {
   ArgumentMetadata,
   BadRequestException,
   Injectable,
-  PipeTransform,
+  PipeTransform
 } from '@nestjs/common';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class ParsePositiveIntPipe implements PipeTransform<string, number> {
 
     if (isNaN(intValue) || intValue <= 0) {
       throw new BadRequestException(
-        `Invalid value for parameter ${metadata.data}`,
+        `Invalid value for parameter ${metadata.data}`
       );
     }
 

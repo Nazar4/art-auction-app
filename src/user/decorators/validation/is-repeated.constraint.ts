@@ -1,12 +1,12 @@
 import {
   ValidationArguments,
   ValidationOptions,
-  registerDecorator,
+  registerDecorator
 } from 'class-validator';
 
 export function IsRepeated(
   property: string,
-  validationOptions?: ValidationOptions,
+  validationOptions?: ValidationOptions
 ) {
   return function (object: any, propertyName: string) {
     registerDecorator({
@@ -24,8 +24,8 @@ export function IsRepeated(
         },
         defaultMessage(): string {
           return `${propertyName} needs to be identical to ${property}`;
-        },
-      },
+        }
+      }
     });
   };
 }

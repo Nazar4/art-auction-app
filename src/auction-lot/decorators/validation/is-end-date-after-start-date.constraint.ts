@@ -1,13 +1,13 @@
 import {
   registerDecorator,
   ValidationOptions,
-  ValidationArguments,
+  ValidationArguments
 } from 'class-validator';
 import { DateUtils } from 'src/shared/type-utils/date-utils';
 
 export function IsEndDateAfterStartDate(
   property: string,
-  validationOptions?: ValidationOptions,
+  validationOptions?: ValidationOptions
 ) {
   return function (object: any, propertyName: string) {
     registerDecorator({
@@ -33,8 +33,8 @@ export function IsEndDateAfterStartDate(
         },
         defaultMessage(args: ValidationArguments) {
           return 'The endDate must be at least 1 month greater than the startDate.';
-        },
-      },
+        }
+      }
     });
   };
 }
